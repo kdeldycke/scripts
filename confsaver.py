@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 2005 jan 31
+Last update : 2005 mar 04
 
 Improvements :
 
@@ -94,6 +94,9 @@ config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
                , 'Gftp'               : [('d', '.gftp/')
                                         ]
                , 'Konqueror bookmark' : [('f', '.kde/share/apps/konqueror/bookmarks.xml')
+                                        ]
+               , 'Konqueror cookies'  : [('f', '.kde/share/config/kcookiejarrc')
+                                        ,('d', '.kde/share/apps/kcookiejar/')
                                         ]
                }
 
