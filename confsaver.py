@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 2005 jan 25
+Last update : 2005 jan 26
 
 Improvements :
 
@@ -79,6 +79,7 @@ config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
                                         ,('f', '.kde/share/config/kmailrc')
                                         ,('f', '.kde/share/config/kmail.eventsrc')
                                         ,('f', '.kde/share/config/emailidentities')
+					,('f', '.kde/share/config/emaildefaults')
                                         ]
                , 'Mail boxes'         : [('d', '.Mail/')
                                         ]
