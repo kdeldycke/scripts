@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 2005 jan 26
+Last update : 2005 jan 31
 
 Improvements :
 
@@ -79,7 +79,7 @@ config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
                                         ,('f', '.kde/share/config/kmailrc')
                                         ,('f', '.kde/share/config/kmail.eventsrc')
                                         ,('f', '.kde/share/config/emailidentities')
-					,('f', '.kde/share/config/emaildefaults')
+                                        ,('f', '.kde/share/config/emaildefaults')
                                         ]
                , 'Mail boxes'         : [('d', '.Mail/')
                                         ]
@@ -88,6 +88,10 @@ config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
                                         ,('f', '.kde/share/config/knewsticker_appletrc')
                                         ,('f', '.kde/share/config/knewsticker_panelappletrc')
                                         ,('f', '.kde/share/config/knewsticker.eventsrc')
+                                        ]
+               , 'Skype'              : [('d', '.Skype/')
+                                        ]
+               , 'Gftp'               : [('d', '.gftp/')
                                         ]
                , 'Konqueror bookmark' : [('f', '.kde/share/apps/konqueror/bookmarks.xml')
                                         ]
