@@ -5,17 +5,17 @@
 |
 |   Tested with : - phorum version 3.4.2
 |                 - e107 version v0.603 build Revision #6
-|                 - apache 2.0.47 (Mandrake Linux/6mdk)
+|                 - apache 2.0.47 (Mandrakelinux 10.1)
 |                 - PHP version 4.3.3
 |                 - mySQL version 4.0.15
 |
 |   This script is designed to migrate phorum datas to a new _empty_ e107 website. The destination e107 platform must be empty because this script copy phorum id and don't re-index database records. --> not true the moment, i try to keep this feature on
 |
-|   Date: 21 dec 2004
+|   Date: 30 mar 2005
 |
-|   (c)Kevin Deldycke 2004
-|   http://www.funky-storm.com
-|   kevin@funky-storm.com
+|   (c)Kevin Deldycke 2004-2005
+|   http://www.coolcavemen.com
+|   kev@coolcavemen.com
 |
 |   Released under the terms and conditions of the
 |   GNU General Public License (http://gnu.org).
@@ -30,7 +30,6 @@
 - create a beautiful form using integrated css (to keep this script into a single file)
 - copy commented header information in clear at top of the html form
 - 'forum_datestamp', 'forum_moderators', 'forum_class' must be filled
-
 */
 
 
@@ -66,9 +65,11 @@ function insertRow($properties, $table, $db)
   }
   del_char($sql, 2);
   $sql .= ")";
-  #echo "<br>SQL Query: ".$sql."<br><br>";  
+  #echo "<br>SQL Query: ".$sql."<br><br>";
   // send the query
-  mysql_db_query($db, $sql);
+  mysql_select_db($db);
+  mysql_query($sql);
+
   // return the id of the inserted row
   return mysql_insert_id();
 }
@@ -85,7 +86,7 @@ function isIp($ip)
     }
   }
   return $valid;
-}    
+}
 
 
 // only usefull for debuging
@@ -97,8 +98,8 @@ function show_array($array)
       $output .= "$key : <ul>";
       $output .= show_array($pos);
       $output .= "</ul>";
-    } else { 
-      $output .= "$key = $pos <br>";
+    } else {
+      $output .= "$key = $pos <br/>";
     }
   }
   return $output;
@@ -107,14 +108,15 @@ function show_array($array)
 
 // function to migrate all threads and message of a given forum
 function migrateThreads($phorumTable, $forum_id)
-{   
+{
   global $phorum_db, $e107_threadTable, $e107_db, $memberIdTable;
 
-  // select top thread messages (= parentless messages = start of a thread)
+  // select parentless messages (= start of a thread)
   $sql2  = "SELECT * ";
   $sql2 .= "FROM `".$phorumTable."`";
   $sql2 .= "WHERE `parent` = 0";
-  $thread_list  = mysql_db_query($phorum_db, $sql2);
+  mysql_select_db($phorum_db);
+  $thread_list = mysql_query($sql2);
 
   // convert each message from Phorum to e107
   while($thread = mysql_fetch_array($thread_list)) {
@@ -123,11 +125,12 @@ function migrateThreads($phorumTable, $forum_id)
     $sql3  = "SELECT * ";
     $sql3 .= "FROM `".$phorumTable."_bodies` ";
     $sql3 .= "WHERE `id` = ".$thread['id'];
-    $bodies = mysql_db_query($phorum_db, $sql3);
+    mysql_select_db($phorum_db);
+    $bodies = mysql_query($sql3);
     $msg_body = mysql_fetch_array($bodies);
 
     // set the thread ownership
-    // TODO: create a function for messages migration ?      
+    // TODO: create a function for messages migration ?
     // TODO: recursive call ?
     //if($thread['parent'] = 0) {
     //  $msg_parent = 0;
@@ -143,7 +146,7 @@ function migrateThreads($phorumTable, $forum_id)
     }
 
     // set the ownership string
-    
+
     if($thread['userid'] == 0) {
       // get the ip of the anonymous poster not the host name
       if(isIp($thread['host'])) {
@@ -162,7 +165,7 @@ function migrateThreads($phorumTable, $forum_id)
     } else {
       $msg_owner = $memberIdTable[$thread['userid']];
     }
-    
+
     // array to describe how to migrate every data of the thread
     $msg_tab = array( 'thread_name'       => addslashes($thread['subject'])
                     , 'thread_thread'     => str_replace("[%sig%]", "", addslashes($msg_body['body']))
@@ -173,33 +176,35 @@ function migrateThreads($phorumTable, $forum_id)
                     , 'thread_user'       => $msg_owner
                     );
     // add the message in the e107 forum
-    $e107Thread_id = insertRow($msg_tab, $e107_threadTable, $e107_db);        
+    $e107Thread_id = insertRow($msg_tab, $e107_threadTable, $e107_db);
     $log .= "          New thread \"".stripslashes($thread['subject'])."\" added with its first message n°".$thread['id']."<br>";
-  
-    // TODO: this part of function is the same as above, so we can factorise this part  
+
+    // TODO: this part of function is the same as above, so we can factorise this part
     // get all messages sons of the current thread
     $log .= "            Get all messages of the thread...<br>";
     $sql3  = "SELECT * ";
     $sql3 .= "FROM `".$phorumTable."`";
     $sql3 .= "WHERE `thread` = ".$thread['id']." AND `parent` <> 0";
-    $son_list  = mysql_db_query($phorum_db, $sql3);
-    
+    mysql_select_db($phorum_db);
+    $son_list = mysql_query($sql3);
+
     // convert each message from Phorum to e107
     while($son = mysql_fetch_array($son_list)) {
       // get the body of the message (stored in a different table in phorum)
       $sql4  = "SELECT * ";
       $sql4 .= "FROM `".$phorumTable."_bodies` ";
       $sql4 .= "WHERE `id` = ".$son['id'];
-      $bodies = mysql_db_query($phorum_db, $sql4);
+      mysql_select_db($phorum_db);
+      $bodies = mysql_query($sql4);
       $son_body = mysql_fetch_array($bodies);
-      
+
       // set the thread moderation status
       if($son['approved'] != 'Y') {
         $son_active = 0;
       } else {
         $son_active = 1;
       }
-      
+
       // set the ownership string
       if($son['userid'] == 0) {
         // get the ip of the anonymous poster not the host name
@@ -230,15 +235,15 @@ function migrateThreads($phorumTable, $forum_id)
                       , 'thread_user'       => $msg_owner
                       );
       // add the message in the thread
-      insertRow($son_tab, $e107_threadTable, $e107_db);        
+      insertRow($son_tab, $e107_threadTable, $e107_db);
       $log .= "            New son message \"".stripslashes($son_tab['thread_name'])."\" added to the thread.<br>";
     }
   }
-  
-  return $log;
-}   
 
-    
+  return $log;
+}
+
+
 // capture all variables given by the post method
 if(!empty($_POST['cfg_host'])) {
   $cfg_host = $_POST['cfg_host'];
@@ -264,40 +269,62 @@ if(!empty($_POST['e107_tablePrefix'])) {
 if(!empty($_POST['e107_defaultForumParentName'])) {
   $e107_defaultForumParentName = $_POST['e107_defaultForumParentName'];
 }
+if(!empty($_POST['import_userIdPrefix'])) {
+  $import_userIdPrefix = $_POST['import_userIdPrefix'];
+}
 
 
 // is there enough informations to start the migration ?
 if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($phorum_mainTable) and !empty($e107_db) and !empty($e107_defaultForumParentName)) {
 
-  $log .= "<pre>Start of migration script.<br>";
+  $log .= "<pre>Start of migration script.<br/>";
 
   // define e107 table names
-  $e107_forumTable   = $e107_tablePrefix."forum";
-  $e107_threadTable  = $e107_tablePrefix."forum_t";
-  $e107_userTable    = $e107_tablePrefix."user";
-  
+  $e107_forumTable  = $e107_tablePrefix."forum";
+  $e107_threadTable = $e107_tablePrefix."forum_t";
+  $e107_userTable   = $e107_tablePrefix."user";
+
   // define Phorum table names
   $phorum_membersTable = $phorum_mainTable."_auth";
 
   // try to connect to the mysql server
   $db_connect_id = mysql_connect($cfg_hote, $cfg_user, $cfg_pass) or die("MySQL error n°".mysql_errno()." when trying a connexion to the server: ".mysql_error());
-  
+
   // get all members
-  $log .= "<br><br><br>  Import all members...<br>";
+  $log .= "<br/><br/><br/>  Import all members...<br/>";
   $sql  = "SELECT * ";
   $sql .= "FROM `".$phorum_membersTable."` ";
-  $member_list = mysql_db_query($phorum_db, $sql);  
-  
+
+  mysql_select_db($phorum_db);
+  $member_list = mysql_query($sql);
+
   // initialize a member id migration table
   // old id => new id
   $memberIdTable = array();
-  
+
   // add every member in e107
   while($member = mysql_fetch_array($member_list)) {
     # TODO : be carefull user_name must be Unique
+    $log .= "<br>    Check that the member id is unique.<br>";
+    $sql2  = "SELECT * ";
+    $sql2 .= "FROM `".$e107_userTable."` ";
+    $sql2 .= "WHERE user_name = '".$member['username']."'";
+    mysql_select_db($e107_db);
+    $user_num = mysql_query($sql2);
+
+    $member_login = '';
+    if (mysql_num_rows($user_num) > 0) {
+      # differentiate existing user id with the new one
+      $member_login = $import_userIdPrefix;
+    }
+    $member_login .= $member['username'];
+    if ($member_login != $member['username']) {
+      $log .= "    The Phorum user \"".$member['username']."\" is now know as \"".$member_login."\"<br>";
+    }
+
     # for jabber etc --> extended user field
     $memberProperties = array ( 'user_password'   => $member['password']
-                              , 'user_name'       => addslashes($member['username'])
+                              , 'user_name'       => addslashes($member_login)
                               , 'user_login'      => addslashes($member['name'])
                               , 'user_email'      => $member['email']
                               , 'user_homepage'   => $member['webpage']
@@ -307,38 +334,40 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
                               , 'user_signature'  => addslashes($member['signature'])
                               , 'user_image'      => $member['image']
                               , 'user_hideemail'  => $member['hide_email']
-                              );  
-    $memberNewId = insertRow($memberProperties, $e107_userTable, $e107_db);        
+                              );
+    $memberNewId = insertRow($memberProperties, $e107_userTable, $e107_db);
     // keep a trace of the conversion
-    $memberIdTable[$member['id']] = $memberNewId.".".addslashes($member['username']);
-    $log .= "<br>    Member \"".$member['username']."\" has been added to e107.<br>";
+    $memberIdTable[$member['id']] = $memberNewId.".".addslashes($member_login);
+    $log .= "    Member \"".$member_login."\" has been added to e107.<br>";
   }
-  
+
   // get all phorum folder
   $log .= "<br><br><br>  Import all folders...<br>";
   $sql  = "SELECT * ";
   $sql .= "FROM `".$phorum_mainTable."` ";
   $sql .= "WHERE `folder` = 1";
-  $folder_list = mysql_db_query($phorum_db, $sql);
-  
+  mysql_select_db($phorum_db);
+  $folder_list = mysql_query($sql);
+
   // add all folders
-  while($folder = mysql_fetch_array($folder_list)) {  
-  
+  while($folder = mysql_fetch_array($folder_list)) {
+
     // TODO: get folder accessibility rules and fit this in forum_class
     $folderProperties = array ( 'forum_name'      => addslashes($folder['name'])
                               , 'forum_class'     => 0
                               , 'forum_datestamp' => 0
-                              );  
-    $folderNewId = insertRow($folderProperties, $e107_forumTable, $e107_db);        
+                              );
+    $folderNewId = insertRow($folderProperties, $e107_forumTable, $e107_db);
     $log .= "<br>    Phorum folder \"".$folder['name']."\" has been converted to e107 forum parent.<br>";
-    
+
     // get all phorum forums of the current folder
     $log .= "      Import all forums of the folder \"".$folder['name']."\" ...<br>";
     $sql2  = "SELECT * ";
     $sql2 .= "FROM `".$phorum_mainTable."` ";
     $sql2 .= "WHERE `folder` = 0 AND `parent` = ".$folder['id'];
-    $forum_list = mysql_db_query($phorum_db, $sql2);
-    
+    mysql_select_db($phorum_db);
+    $forum_list = mysql_query($sql2);
+
     // migrate all forums of the current folder
     while($forum = mysql_fetch_array($forum_list)) {
       $forumProperties = array( 'forum_name'         => addslashes($forum['name'])
@@ -348,33 +377,34 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
                               , 'forum_moderators'   => ""
                               , 'forum_class'        => ""
                               );
-      $e107Forum_id = insertRow($forumProperties, $e107_forumTable, $e107_db);        
+      $e107Forum_id = insertRow($forumProperties, $e107_forumTable, $e107_db);
       $log .= "<br>        Forum \"".$forum['name']."\" added.<br>";
-      
+
       // migrate all threads of this forum
       $log .= "          Get all threads of \"".stripslashes($forumProperties['name'])."\" forum...<br>";
       $log .= migrateThreads($forumProperties['table_name'], $e107Forum_id);
     }
   }
-    
+
   // get all parentless phorum forums
   $log .= "<br><br><br>  Import all parentless forums...<br>";
   $sql  = "SELECT * ";
   $sql .= "FROM `".$phorum_mainTable."` ";
   $sql .= "WHERE `folder` = 0 AND `parent` = 0";
-  $forum_list = mysql_db_query($phorum_db, $sql);
-  
+  mysql_select_db($phorum_db);
+  $forum_list = mysql_query($sql);
+
   // migrate all parentless forums
   while($forum = mysql_fetch_array($forum_list)) {
-    // we need to create a default parent forum      
+    // we need to create a default parent forum
     // check if the default parent is not already created
     if(empty($e107_defaultParentId)) {
       // TODO: allow the user to choose the default class
       $defaultParentProperties = array( 'forum_name'       => addslashes($e107_defaultForumParentName)
                                       , 'forum_class'      => 0
                                       , 'forum_datestamp'  => 0
-                                      );  
-      $e107_defaultParentId = insertRow($defaultParentProperties, $e107_forumTable, $e107_db);        
+                                      );
+      $e107_defaultParentId = insertRow($defaultParentProperties, $e107_forumTable, $e107_db);
       $log .= "<br>    Default parent forum \"".$e107_defaultForumParentName."\" for parentless Phorum forums added.<br>";
     }
     // create the forum
@@ -386,19 +416,19 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
                             , 'forum_moderators'   => ""
                             , 'forum_class'        => ""
                             );
-    $e107Forum_id = insertRow($forumProperties, $e107_forumTable, $e107_db);        
+    $e107Forum_id = insertRow($forumProperties, $e107_forumTable, $e107_db);
     $log .= "<br>        Parentless forum \"".$forum['name']."\" added.<br>";
-    
+
     // migrate all threads of this forum
     $log .= "          Get all threads of \"".stripslashes($forum['name'])."\" forum...<br>";
     $log .= migrateThreads($forum['table_name'], $e107Forum_id);
-  }   
+  }
 
   $log .= show_array($memberIdTable);
-    
+
   mysql_close($db_connect_id);
   $log .= "<br>End of script.</pre></body></html>";
-  
+
 }
 
 // display the setup form
@@ -426,7 +456,7 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
   <tr>
     <td>User login*</td>
     <td><input class="field" type="text" name="cfg_user" value="<?php if(!empty($cfg_user)){echo $cfg_user;}else{echo "root";}?>" size="20"></td>
-    <td>&nbsp;</td>    
+    <td>&nbsp;</td>
   </tr>
   <tr>
     <td>User password</td>
@@ -463,6 +493,14 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
     <td>Default forum parent name*</td>
     <td><input class="field" type="text" name="e107_defaultForumParentName" value="<?php if(!empty($e107_defaultForumParentName)){echo $e107_defaultForumParentName;}else{echo "Main forums";}?>" size="20"></td>
     <td>This name is only use to create a default parent in the case where phorum forums without parent are found. It's needed because e107 don't allow forum without parent.<br>By default, the e107 parent of all parentless Phorum forums is visible by everyone (class=public).<br>Because e107 disallow sub-folder, this script will create a parent forum at top level for each folder (and sub folder) found.</td>
+  </tr>
+  <tr colspan="3">
+    <td><b>Import parameters</b></td>
+  </tr>
+  <tr>
+    <td>New user ID Prefix</td>
+    <td><input class="field" type="text" name="import_userIdPrefix" value="<?php if(!empty($import_userIdPrefix)){echo $import_userIdPrefix;}else{echo "phorumUser_";}?>" size="20"></td>
+    <td>When there is two user with the same ID (one in e107, one in Phorum), this script will differentiate the imported user (from Phorum) with the "already present" user (in e107) by using this prefix.</td>
   </tr>
   <tr colspan="3">
     <td><input class="field" type="submit" name="submit" value="Start the migration"></td>
