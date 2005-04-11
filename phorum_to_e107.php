@@ -11,7 +11,7 @@
 |
 |   This script is designed to migrate phorum datas to a new _empty_ e107 website. The destination e107 platform must be empty because this script copy phorum id and don't re-index database records. --> not true the moment, i try to keep this feature on
 |
-|   Date: 30 mar 2005
+|   Date: 11 apr 2005
 |
 |   (c)Kevin Deldycke 2004-2005
 |   http://www.coolcavemen.com
@@ -298,33 +298,35 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
   mysql_select_db($phorum_db);
   $member_list = mysql_query($sql);
 
-  // initialize a member id migration table
+  // initialize the member id migration table
   // old id => new id
   $memberIdTable = array();
 
   // add every member in e107
-  while($member = mysql_fetch_array($member_list)) {
-    # TODO : be carefull user_name must be Unique
-    $log .= "<br>    Check that the member id is unique.<br>";
-    $sql2  = "SELECT * ";
-    $sql2 .= "FROM `".$e107_userTable."` ";
-    $sql2 .= "WHERE user_name = '".$member['username']."'";
-    mysql_select_db($e107_db);
-    $user_num = mysql_query($sql2);
+  while ($member = mysql_fetch_array($member_list)) {
 
-    $member_login = '';
-    if (mysql_num_rows($user_num) > 0) {
-      # differentiate existing user id with the new one
-      $member_login = $import_userIdPrefix;
+    # Change the user id to a unique one if necessary
+    $new_user_id = $member['username'];
+    $user_exist = 1;
+    while ($user_exist) {
+      $sql2  = "SELECT * ";
+      $sql2 .= "FROM `".$e107_userTable."` ";
+      $sql2 .= "WHERE user_name = '".$new_user_id."'";
+      mysql_select_db($e107_db);
+      $user_count = mysql_query($sql2);
+      if (mysql_num_rows($user_count) > 0) {
+        $new_user_id = $import_userIdPrefix.(string)rand(1000,9999)."_".$member['username'];
+      } else {
+        $user_exist = 0;
+      }
     }
-    $member_login .= $member['username'];
-    if ($member_login != $member['username']) {
-      $log .= "    The Phorum user \"".$member['username']."\" is now know as \"".$member_login."\"<br>";
+    if ($new_user_id != $member['username']) {
+      $log .= "    The Phorum user \"".$member['username']."\" is now know as \"".$new_user_id."\"<br>";
     }
 
     # for jabber etc --> extended user field
     $memberProperties = array ( 'user_password'   => $member['password']
-                              , 'user_name'       => addslashes($member_login)
+                              , 'user_name'       => addslashes($new_user_id)
                               , 'user_login'      => addslashes($member['name'])
                               , 'user_email'      => $member['email']
                               , 'user_homepage'   => $member['webpage']
@@ -337,8 +339,8 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
                               );
     $memberNewId = insertRow($memberProperties, $e107_userTable, $e107_db);
     // keep a trace of the conversion
-    $memberIdTable[$member['id']] = $memberNewId.".".addslashes($member_login);
-    $log .= "    Member \"".$member_login."\" has been added to e107.<br>";
+    $memberIdTable[$member['id']] = $memberNewId.".".addslashes($new_user_id);
+    $log .= "    Member \"".$new_user_id."\" has been added to e107.<br>";
   }
 
   // get all phorum folder
@@ -412,7 +414,6 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
                             , 'forum_description'  => addslashes($forum['description'])
                             , 'forum_parent'       => $e107_defaultParentId
                             , 'forum_datestamp'    => 0
-                            , 'forum_datestamp'    => 0
                             , 'forum_moderators'   => ""
                             , 'forum_class'        => ""
                             );
@@ -424,7 +425,7 @@ if(!empty($cfg_host) and !empty($cfg_user) and !empty($phorum_db) and !empty($ph
     $log .= migrateThreads($forum['table_name'], $e107Forum_id);
   }
 
-  $log .= show_array($memberIdTable);
+  #$log .= show_array($memberIdTable);
 
   mysql_close($db_connect_id);
   $log .= "<br>End of script.</pre></body></html>";
