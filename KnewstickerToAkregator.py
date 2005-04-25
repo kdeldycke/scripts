@@ -21,7 +21,18 @@
 ##############################################################################
 
 """
-Last update : 20O5 apr 22
+Description :
+  This script parse the KNewsTicker configuration file of the current logged
+  user to extract feeds references. Then the script generate a OPML/XML file
+  that can be imported to Akregator.
+
+Prerequisite :
+  - KNewsTicker
+  - Python
+  - pyxml
+
+Last update :
+  20O5 apr 25
 """
 
 
@@ -29,6 +40,34 @@ import ConfigParser, sys, os
 from xml.dom import implementation
 from xml.dom import EMPTY_NAMESPACE, XML_NAMESPACE
 from xml.dom.ext import PrettyPrint
+from commands import getstatusoutput
+
+
+
+def getConfigFile():
+  file_name = 'knewsticker_panelappletrc'
+
+  # kde-config return the list of folder where kde config files are stored
+  result = getstatusoutput("kde-config -path config")
+
+  # Get the list (default sort : priority)
+  if result[0] != 0:
+    return None
+  folder_list = result[1].split(':')
+  if len(folder_list) <= 0:
+    return None
+
+  # Get the Knewsticker config file
+  for folder in folder_list:
+    knt_config_path = folder + file_name
+    file_path = os.path.abspath(knt_config_path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+      break
+    else:
+      file_path = None
+  if file_path == None:
+    return None
+  return open(file_path, 'r')
 
 
 
@@ -124,22 +163,16 @@ def writeXmlFile(dom_tree, file_name='feeds_to_import.xml'):
   # Print out the result
   out.write('<?xml version="1.0" encoding="UTF-8"?>')
   PrettyPrint(dom_tree, out)
-  print "Feeds saved in " + out_file
+  return out_file
 
 
 
 if __name__ == "__main__":
-
-  # Get user home folder
-  home_dir = os.path.abspath(os.getenv('HOME'))
-
-  # Get the Knewsticker config file content
-  knt_config_path = home_dir + '/.kde/share/config/knewsticker_panelappletrc'
-  file_path = os.path.abspath(knt_config_path)
-  if not os.path.isfile(file_path):
-    output("ERROR: " + file_path + " doesn't exist.")
+  # Get the Knewsticker config file
+  file_object = getConfigFile()
+  if file_object == None:
+    output("ERROR: KNewsTicker config file not found.")
     sys.exit()
-  file_object = open(file_path, 'r')
 
   # Parse the config file to get all feeds
   knt_feeds = getFeeds(file_object)
@@ -147,4 +180,6 @@ if __name__ == "__main__":
   # Transform feeds data to XML
   xml_dom = getAkregatorXml(knt_feeds)
 
-  writeXmlFile(xml_dom)
+  # Save the file
+  out_file = writeXmlFile(xml_dom)
+  print "Feeds saved in " + out_file
