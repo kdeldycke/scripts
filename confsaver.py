@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 2005 mar 04
+Last update : 2005 may 26
 
 Improvements :
 
@@ -72,22 +72,22 @@ silent = False
 #     'd' -> indicate an entire directory to save
 #     'f' -> indicate a single file to save
 
-config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
-                                        ,('f', '.kde/share/config/kopeterc')
+config_files = { 'Kopete'             : [('f', '.kde/share/config/kopeterc')
+                                        ,('d', '.kde/share/apps/kopete')
                                         ]
-               , 'Kmail'              : [('d', '.kde/share/apps/kmail/')
-                                        ,('f', '.kde/share/config/kmailrc')
+               , 'Kmail'              : [('f', '.kde/share/config/emailidentities')
                                         ,('f', '.kde/share/config/kmail.eventsrc')
-                                        ,('f', '.kde/share/config/emailidentities')
                                         ,('f', '.kde/share/config/emaildefaults')
+                                        ,('f', '.kde/share/config/kmailrc')
+                                        ,('d', '.kde/share/apps/kmail/')
                                         ]
                , 'Mail boxes'         : [('d', '.Mail/')
                                         ]
-               , 'Knewsticker'        : [('f', '.kde/share/config/knewstickerrc')
-                                        ,('f', '.kde/share/config/knewstickerappletrc')
-                                        ,('f', '.kde/share/config/knewsticker_appletrc')
-                                        ,('f', '.kde/share/config/knewsticker_panelappletrc')
+               , 'Knewsticker'        : [('f', '.kde/share/config/knewsticker_panelappletrc')
                                         ,('f', '.kde/share/config/knewsticker.eventsrc')
+                                        ,('f', '.kde/share/config/knewsticker_appletrc')
+                                        ,('f', '.kde/share/config/knewstickerappletrc')
+                                        ,('f', '.kde/share/config/knewstickerrc')
                                         ]
                , 'Skype'              : [('d', '.Skype/')
                                         ]
@@ -97,6 +97,10 @@ config_files = { 'Kopete'             : [('d', '.kde/share/apps/kopete')
                                         ]
                , 'Konqueror cookies'  : [('f', '.kde/share/config/kcookiejarrc')
                                         ,('d', '.kde/share/apps/kcookiejar/')
+                                        ]
+               , 'Akregator'          : [('f', '.kde/share/config/akregator.eventsrc')
+                                        ,('f', '.kde/share/config/akregatorrc')
+                                        ,('d', '.kde/share/apps/akregator/')
                                         ]
                }
 
