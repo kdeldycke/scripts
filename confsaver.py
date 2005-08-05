@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 2005 may 26
+Last update : 2005 aug 05
 
 Improvements :
 
@@ -83,12 +83,12 @@ config_files = { 'Kopete'             : [('f', '.kde/share/config/kopeterc')
                                         ]
                , 'Mail boxes'         : [('d', '.Mail/')
                                         ]
-               , 'Knewsticker'        : [('f', '.kde/share/config/knewsticker_panelappletrc')
-                                        ,('f', '.kde/share/config/knewsticker.eventsrc')
-                                        ,('f', '.kde/share/config/knewsticker_appletrc')
-                                        ,('f', '.kde/share/config/knewstickerappletrc')
-                                        ,('f', '.kde/share/config/knewstickerrc')
-                                        ]
+               #, 'Knewsticker'        : [('f', '.kde/share/config/knewsticker_panelappletrc')
+               #                         ,('f', '.kde/share/config/knewsticker.eventsrc')
+               #                         ,('f', '.kde/share/config/knewsticker_appletrc')
+               #                         ,('f', '.kde/share/config/knewstickerappletrc')
+               #                         ,('f', '.kde/share/config/knewstickerrc')
+               #                         ]
                , 'Skype'              : [('d', '.Skype/')
                                         ]
                , 'Gftp'               : [('d', '.gftp/')
