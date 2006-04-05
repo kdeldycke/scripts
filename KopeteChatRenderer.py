@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2005 Kevin Deldycke <kevin.deldycke@free.fr>
+# Copyright (C) 2005-2006 Kevin Deldycke <kev@coolcavemen.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-Last update : 20O5 apr 17
+  Last update: 20O6 apr 05
 """
 
 
@@ -36,7 +36,7 @@ def usage():
   print """Usage : kopete_log [options]
 
 ** Input/Output options
-    -i=, --input=
+    -i [input_file], --input=[input_file]
             The XML kopete log file where the chat is extracted.
 
 ** Sorting options [default: --ascending]
@@ -158,9 +158,9 @@ def renderHistory(history, sep='|'):
   sep = ' ' + sep + ' '
   for message in history:
     string += sep.join([ str(message['date'])
-                      ,  message['user'].ljust(max_lenght)
-                      ,  message['text']
-                      ]) + '\n'
+                       , message['user'].ljust(max_lenght)
+                       , message['text']
+                       ]) + '\n'
 
   return string
 
@@ -177,8 +177,10 @@ if __name__ == "__main__":
     sys.exit(2)
 
   # Get all user's options and define internal variables
+  global silent
   input_file = None
-  sort = 'ASC'
+  silent     = False
+  sort       = 'ASC'
   for o, a in opts:
     if o in ("-h", "--help"):
       usage()
@@ -193,6 +195,7 @@ if __name__ == "__main__":
   if input_file == None:
     print "No input file found."
     # TODO : Try to get the file automatically
+    usage()
     sys.exit()
 
   xml_string = getFileContent(input_file)
