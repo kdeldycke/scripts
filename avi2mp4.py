@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update : 20O5 oct 02
+  Last update: 20O6 apr 09
 """
 
 
@@ -32,8 +32,7 @@ from commands import getstatusoutput
 
 
 INPUT_FILE_PATTERN = '*.avi'
-OUTPUT_FILE_EXTENSION = '.avi'
-OUTPUT_SUFFIX = '-2'
+OUTPUT_FILE_EXTENSION = '.mp4'
 
 
 
@@ -72,7 +71,7 @@ def main():
     if o == "--silent":
       silent = True
 
-  # Get the list of files
+  # Get the list of files to encode
   current_folder_path = os.path.abspath('./')
   files = glob.glob(("%s/%s") % (current_folder_path, INPUT_FILE_PATTERN))
   if not files:
@@ -85,17 +84,16 @@ def main():
   # Do the command for each file
   for input_file in input_file_list:
     input_file_elements = input_file.split('.')
-    output_file = '.'.join(input_file_elements[:-1]) + OUTPUT_SUFFIX + OUTPUT_FILE_EXTENSION
+    output_file = '.'.join(input_file_elements[:-1]) + OUTPUT_FILE_EXTENSION
     # Create the shell command string
-    for video_pass in ['1', '2']:
-      command = "mencoder %s -ovc lavc -oac lavc -ffourcc DX50 -lavcopts vcodec=mpeg4:vbitrate=400:v4mv:mbd=2:trell:autoaspect:dia=2:acodec=mp3:abitrate=32:vpass=%s -vf hqdn3d -o %s" % (input_file, video_pass, output_file)
-      if not silent:
-        print """Do "%s"...""" % (command)
-      # Do the shell command
-      if not dry_run:
-        getstatusoutput(command)
-      if not silent:
-        print "Done."
+    command = "vlc --sout-all \"%s\" :sout='#transcode{vcodec=h264,acodec=mp3,ab=32,channels=1,audio-sync}:std{access=file,mux=mp4,url=\"%s\"}' vlc:quit -I dummy" % (input_file, output_file)
+    if not silent:
+      print """Do "%s"...""" % (command)
+    # Do the shell command
+    if not dry_run:
+      getstatusoutput(command)
+    if not silent:
+      print "Done."
 
 
 
