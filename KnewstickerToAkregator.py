@@ -2,7 +2,8 @@
 
 ##############################################################################
 #
-# Copyright (C) 2005 Kevin Deldycke <kevin.deldycke@free.fr>
+# Copyright (C) 2005-2006 Kevin Deldycke - kev@coolcavemen.com
+#                         Martin Vidner  - http://vidner.net/martin/
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,7 +33,7 @@ Prerequisite :
   - pyxml
 
 Last update :
-  20O5 apr 25
+  2006 Aug 31
 """
 
 
@@ -106,11 +107,11 @@ def getFeeds(file):
       feed['url']  = parser.get(section, 'source file')
       feed['name'] = section
       # Get the category name
-      category_id = parser.get(section, 'subject')
-      if category_id not in cat.keys():
-        category = 'Unknown'
-      else:
-        category = cat[category_id]
+      category = 'Unknown'
+      if parser.has_option(section, 'subject'):
+        category_id = parser.get(section, 'subject')
+        if category_id in cat.keys():
+          category = cat[category_id]
       # Save the feed in the dictionnary
       caterory_feeds = [feed, ]
       if feed_list.has_key(category):
