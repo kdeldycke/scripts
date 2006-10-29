@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update: 20O6 apr 30
+  Last update: 20O6 oct 29
 """
 
 FTP_USER = 'kevin'
@@ -56,15 +56,22 @@ from commands import getstatusoutput
 from urllib   import quote      as q
 from urllib   import quote_plus as qp
 from os       import mkdir, remove, system
-from os.path  import abspath, exists
+from os.path  import abspath, exists, isfile, sep
+
+SEP         = sep
+DATE_FORMAT = "%04d_%02d_%02d"
 
 
 
 def main():
 
-  # Get the date at the very beginning because mirroring and archiving can be very long operations
-  date_element = datetime.date.today().timetuple()
-  date = "%04d_%02d_%02d" % (date_element[0], date_element[1], date_element[2])
+  # Get all dates at the very beginning because mirroring and archiving can be very long operations
+  today       = datetime.date.today()
+  today_items = today.timetuple()
+  today_str   = DATE_FORMAT % (today_items[0], today_items[1], today_items[2])
+  yesterday       = today - datetime.timedelta(1)
+  yesterday_items = yesterday.timetuple()
+  yesterday_str   = DATE_FORMAT % (yesterday_items[0], yesterday_items[1], yesterday_items[2])
 
   # Check existence of main backup folder
   if not exists(abspath(BACKUP_DIR)):
@@ -81,10 +88,10 @@ def main():
     print '-' * 40
 
     # Create local folder tree
-    local_url  = abspath(BACKUP_DIR + '/' + ftp_site['local_dir'])
+    local_url = abspath(BACKUP_DIR + SEP + ftp_site['local_dir'])
     if not exists(local_url):
       mkdir(local_url)
-    current_dir = abspath(local_url + '/current')
+    current_dir = abspath(local_url + SEP + 'current')
     if not exists(current_dir):
       mkdir(current_dir)
 
@@ -101,12 +108,36 @@ def main():
     system(mirror_cmd)
 
     # Compress and archive backup
-    archive_name = "%s.tar.bz2" % (date)
-    archive_path = abspath("%s/%s" % (local_url, archive_name))
-    if exists(archive_path):
-      remove(archive_path)
-    archive_cmd = "tar c -C %s ./ | bzip2 > %s" % (current_dir, archive_path)
-    system(archive_cmd)
+    today_archive_path = abspath("%s%s%s.tar.bz2" % (local_url, SEP, today_str))
+    if exists(today_archive_path):
+      remove(today_archive_path)
+    system("tar c -C %s ./ | bzip2 > %s" % (current_dir, today_archive_path))
+
+    # Delete the previous day backup if nothing has changed
+    yesterday_archive_path = abspath("%s%s%s.tar.bz2" % (local_url, SEP, yesterday_str))
+    if exists(yesterday_archive_path) and isfile(yesterday_archive_path):
+      checksum_dict = { 'today'    : {'path': today_archive_path,     'checksum': None}
+                      , 'yesterday': {'path': yesterday_archive_path, 'checksum': None}
+                      }
+      # Compare yesterday and today backup
+      for (archive_date, file_details) in checksum_dict.items():
+        file_to_hash = file_details['path']
+        result = getstatusoutput("md5sum %s" % file_to_hash)
+        # Check that the result returned by md5sum linux command is good
+        file_checksum = None
+        if result[0] == 0:
+          file_checksum = result[1].split(' ')[0]
+        # Stop the comparing process if md5sum fail
+        if file_checksum == None:
+          break
+        # Update the checksum dict
+        checksum_dict[archive_date]['checksum'] = file_checksum
+
+      # Compare all checksums:
+      if checksum_dict['today']['checksum'] != None and \
+         checksum_dict['today']['checksum'] == checksum_dict['yesterday']['checksum']:
+        # Yesterday archive is the same as today archive, delete it !
+        remove(checksum_dict['yesterday']['path'])
 
 
 
