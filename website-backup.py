@@ -21,7 +21,22 @@
 ##############################################################################
 
 """
-  Last update: 20O6 oct 29
+  Last update: 20O6 nov 11
+
+  Requirements:
+    * linux
+    * python
+    * lftp
+    * tar
+    * bzip2
+    * md5sum
+    * rdiff-backup
+
+  TODO:
+    * support pre-command (use case: de-tar mysql remote backups)
+    * output verbosier logs
+    * send bakcup reports by mail
+    * send error by mail
 """
 
 FTP_USER = 'kevin'
@@ -52,31 +67,22 @@ ftpsite_list = [
 
 
 import sys, datetime
-from commands import getstatusoutput
 from urllib   import quote      as q
 from urllib   import quote_plus as qp
-from os       import mkdir, remove, system
+from os       import mkdir, remove, system, rmdir
 from os.path  import abspath, exists, isfile, sep
 
-SEP         = sep
-DATE_FORMAT = "%04d_%02d_%02d"
+# Define constants
+SEP = sep
 
 
 
 def main():
 
-  # Get all dates at the very beginning because mirroring and archiving can be very long operations
-  today       = datetime.date.today()
-  today_items = today.timetuple()
-  today_str   = DATE_FORMAT % (today_items[0], today_items[1], today_items[2])
-  yesterday       = today - datetime.timedelta(1)
-  yesterday_items = yesterday.timetuple()
-  yesterday_str   = DATE_FORMAT % (yesterday_items[0], yesterday_items[1], yesterday_items[2])
-
   # Check existence of main backup folder
   if not exists(abspath(BACKUP_DIR)):
     print "'%s' does't exist !" % (BACKUP_DIR)
-    sys.exit(0)
+    sys.exit(1)
 
   # Proceed each backup set
   for ftp_site in ftpsite_list:
@@ -87,13 +93,15 @@ def main():
     print "    %s backup" % (title)
     print '-' * 40
 
-    # Create local folder tree
-    local_url = abspath(BACKUP_DIR + SEP + ftp_site['local_dir'])
-    if not exists(local_url):
-      mkdir(local_url)
-    current_dir = abspath(local_url + SEP + 'current')
-    if not exists(current_dir):
-      mkdir(current_dir)
+    # Create backup folder structure if needed
+    backup_folders = {}
+    backup_folders['main']     = abspath(BACKUP_DIR + SEP + ftp_site['local_dir'])
+    backup_folders['archives'] = abspath(backup_folders['main'] + SEP + "monthly-archives")  # Contain monthly archives
+    backup_folders['rdiff']    = abspath(backup_folders['main'] + SEP + "rdiff-repository")  # Contain current month diferential backup
+    backup_folders['ftp']      = abspath(backup_folders['main'] + SEP + "ftp-mirror")        # Contain a mirror of the distant web site get through FTP
+    for (folder_type, folder_path) in backup_folders.items():
+      if not exists(folder_path):
+        mkdir(folder_path)
 
     # Generate remote url
     remote_url = "ftp://%s:%s@%s:%s/%s" % ( qp(ftp_site['user'])
@@ -103,41 +111,38 @@ def main():
                                           , q(ftp_site['remote_dir'])
                                           )
 
-    # Get the current copy of the remote directory
-    mirror_cmd = """lftp -c 'open -e "mirror -e --parallel=2 . %s" %s'""" % (current_dir, remote_url)
+    # Get a copy of the remote directory
+    mirror_cmd = """lftp -c 'open -e "mirror -e --parallel=2 . %s" %s'""" % (backup_folders['ftp'], remote_url)
     system(mirror_cmd)
 
-    # Compress and archive backup
-    today_archive_path = abspath("%s%s%s.tar.bz2" % (local_url, SEP, today_str))
-    if exists(today_archive_path):
-      remove(today_archive_path)
-    system("tar c -C %s ./ | bzip2 > %s" % (current_dir, today_archive_path))
+    # Make a backup to rdiff repository
+    rdiff_cmd = """rdiff-backup "%s" "%s" """ % (backup_folders['ftp'], backup_folders['rdiff'])
+    system(rdiff_cmd)
 
-    # Delete the previous day backup if nothing has changed
-    yesterday_archive_path = abspath("%s%s%s.tar.bz2" % (local_url, SEP, yesterday_str))
-    if exists(yesterday_archive_path) and isfile(yesterday_archive_path):
-      checksum_dict = { 'today'    : {'path': today_archive_path,     'checksum': None}
-                      , 'yesterday': {'path': yesterday_archive_path, 'checksum': None}
-                      }
-      # Compare yesterday and today backup
-      for (archive_date, file_details) in checksum_dict.items():
-        file_to_hash = file_details['path']
-        result = getstatusoutput("md5sum %s" % file_to_hash)
-        # Check that the result returned by md5sum linux command is good
-        file_checksum = None
-        if result[0] == 0:
-          file_checksum = result[1].split(' ')[0]
-        # Stop the comparing process if md5sum fail
-        if file_checksum == None:
-          break
-        # Update the checksum dict
-        checksum_dict[archive_date]['checksum'] = file_checksum
+    # Generate monthly archive name
+    today_items   = datetime.date.today().timetuple()
+    current_year  = today_items[0]
+    current_month = today_items[1]
+    monthly_archive = abspath("%s%s%04d-%02d.tar.bz2" % (backup_folders['archives'], SEP, current_year, current_month))
 
-      # Compare all checksums:
-      if checksum_dict['today']['checksum'] != None and \
-         checksum_dict['today']['checksum'] == checksum_dict['yesterday']['checksum']:
-        # Yesterday archive is the same as today archive, delete it !
-        remove(checksum_dict['yesterday']['path'])
+    # If month started, make a bzip2 archive
+    if not exists(monthly_archive):
+      tmp_archives_path = abspath(backup_folders['archives'] + SEP + "tmp")
+      if exists(tmp_archives_path):
+        system("""rm -rf "%s" """ % tmp_archives_path)
+      mkdir(tmp_archives_path)
+      rdiff_cmd = """rdiff-backup -r "%04d-%02d-01" "%s" "%s" """ % ( current_year
+                                                                    , current_month
+                                                                    , backup_folders['rdiff']
+                                                                    , tmp_archives_path
+                                                                    )
+      system(rdiff_cmd)
+      system("tar c -C %s ./ | bzip2 > %s" % (tmp_archives_path, monthly_archive))
+      # Delete the tmp folder
+      system("""rm -rf "%s" """ % tmp_archives_path)
+
+    # Delete diff older than 32 days (31 days = 1 month + 1 day of security backup)
+    rdiff_cmd = """rdiff-backup --remove-older-than 32D "%s" """ % backup_folders['rdiff']
 
 
 
