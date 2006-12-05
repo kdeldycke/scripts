@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update: 20O6 nov 11
+  Last update: 2006 dec 05
 
   Requirements:
     * linux
@@ -29,7 +29,6 @@
     * lftp
     * tar
     * bzip2
-    * md5sum
     * rdiff-backup
 
   TODO:
@@ -38,6 +37,10 @@
     * send bakcup reports by mail
     * send error by mail
 """
+
+
+################### Start of user config ###################
+
 
 FTP_USER = 'kevin'
 FTP_PASS = '<password>'
@@ -65,8 +68,10 @@ ftpsite_list = [
 ]
 
 
+#################### End of user config ####################
+################ Do not modify code below ! ################
 
-import sys, datetime
+import sys, datetime, getopt
 from urllib   import quote      as q
 from urllib   import quote_plus as qp
 from os       import mkdir, remove, system, rmdir
@@ -77,7 +82,24 @@ SEP = sep
 
 
 
-def main():
+def run(cmd, debug=False):
+  """
+    Run system command and print debug message if require.
+  """
+  if debug:
+    print "Trying to execute following command:"
+    print "  `%s`" % cmd
+  system(cmd)
+  if debug:
+    print "  Done."
+    print ""
+
+
+
+def main(d=False):
+  """
+    Core of the backup script which implement the backup strategy.
+  """
 
   # Check existence of main backup folder
   if not exists(abspath(BACKUP_DIR)):
@@ -89,9 +111,9 @@ def main():
 
     # Annonce the backup set
     title = ftp_site['title']
-    print '-' * 40
-    print "    %s backup" % (title)
-    print '-' * 40
+    print '=' * 40
+    print "%s backup" % (title)
+    print '=' * 40
 
     # Create backup folder structure if needed
     backup_folders = {}
@@ -113,11 +135,11 @@ def main():
 
     # Get a copy of the remote directory
     mirror_cmd = """lftp -c 'open -e "mirror -e --parallel=2 . %s" %s'""" % (backup_folders['ftp'], remote_url)
-    system(mirror_cmd)
+    run(mirror_cmd, d)
 
     # Make a backup to rdiff repository
     rdiff_cmd = """rdiff-backup "%s" "%s" """ % (backup_folders['ftp'], backup_folders['rdiff'])
-    system(rdiff_cmd)
+    run(rdiff_cmd, d)
 
     # Generate monthly archive name
     today_items   = datetime.date.today().timetuple()
@@ -129,22 +151,52 @@ def main():
     if not exists(monthly_archive):
       tmp_archives_path = abspath(backup_folders['archives'] + SEP + "tmp")
       if exists(tmp_archives_path):
-        system("""rm -rf "%s" """ % tmp_archives_path)
+        run("""rm -rf "%s" """ % tmp_archives_path, d)
       mkdir(tmp_archives_path)
       rdiff_cmd = """rdiff-backup -r "%04d-%02d-01" "%s" "%s" """ % ( current_year
                                                                     , current_month
                                                                     , backup_folders['rdiff']
                                                                     , tmp_archives_path
                                                                     )
-      system(rdiff_cmd)
-      system("tar c -C %s ./ | bzip2 > %s" % (tmp_archives_path, monthly_archive))
+      run(rdiff_cmd, d)
+      run("tar c -C %s ./ | bzip2 > %s" % (tmp_archives_path, monthly_archive), d)
       # Delete the tmp folder
-      system("""rm -rf "%s" """ % tmp_archives_path)
+      run("""rm -rf "%s" """ % tmp_archives_path, d)
 
     # Delete diff older than 32 days (31 days = 1 month + 1 day of security backup)
     rdiff_cmd = """rdiff-backup --remove-older-than 32D "%s" """ % backup_folders['rdiff']
+    run(rdiff_cmd, d)
+
+
+
+def usage():
+  print """Usage: %s [options]
+  -d, --debug
+      Run in debug mode (show command lines).
+  -h, --help
+      Show this screen.
+""" % sys.argv[0]
 
 
 
 if __name__ == "__main__":
-  main()
+  try:
+    opts, args = getopt.getopt( sys.argv[1:]
+                              , "hd"
+                              , ["help", "debug"]
+                              )
+  except getopt.GetoptError:
+    # exit on command line error
+    sys.exit(2)
+
+  # Start action according parameters
+  debug = False
+  for o, a in opts:
+    if o in ("-d", "--debug"):
+      debug = True
+    elif o in ("-h", "--help"):
+      usage()
+      sys.exit(0)
+
+  main(debug)
+  sys.exit(0)
