@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update: 2006 dec 05
+  Last update: 2006 dec 25
 
   Requirements:
     * linux
@@ -134,7 +134,7 @@ def main(d=False):
                                           )
 
     # Get a copy of the remote directory
-    mirror_cmd = """lftp -c 'open -e "mirror -e --parallel=2 . %s" %s'""" % (backup_folders['ftp'], remote_url)
+    mirror_cmd = """lftp -c 'set ftp:list-options -a && open -e "mirror -e --parallel=2 . %s" %s'""" % (backup_folders['ftp'], remote_url)
     run(mirror_cmd, d)
 
     # Make a backup to rdiff repository
@@ -163,8 +163,8 @@ def main(d=False):
       # Delete the tmp folder
       run("""rm -rf "%s" """ % tmp_archives_path, d)
 
-    # Delete diff older than 32 days (31 days = 1 month + 1 day of security backup)
-    rdiff_cmd = """rdiff-backup --remove-older-than 32D "%s" """ % backup_folders['rdiff']
+    # Keep last 32 increments (31 days = 1 month + 1 day of security backup)
+    rdiff_cmd = """rdiff-backup --force --remove-older-than 32B "%s" """ % backup_folders['rdiff']
     run(rdiff_cmd, d)
 
 
