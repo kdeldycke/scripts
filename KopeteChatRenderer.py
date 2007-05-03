@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2005-2006 Kevin Deldycke <kev@coolcavemen.com>
+# Copyright (C) 2005-2007 Kevin Deldycke <kev@coolcavemen.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update: 20O6 apr 05
+  Last update: 2007 may 03
 """
 
 
@@ -38,6 +38,7 @@ def usage():
 ** Input/Output options
     -i [input_file], --input=[input_file]
             The XML kopete log file where the chat is extracted.
+            Default location: ~/.kde/share/apps/kopete/logs/XXXProtocol/ID/ID.YYYYMM.xml
 
 ** Sorting options [default: --ascending]
     -a, --ascending
