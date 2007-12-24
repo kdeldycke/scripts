@@ -28,7 +28,7 @@
     ( http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink )
     published on the official rdiff-backup wiki ( http://wiki.rdiff-backup.org ).
 
-  Last update: 2007 aug 12
+  Last update: 2007 dec 24
 
   Requirements:
     * linux
@@ -54,7 +54,7 @@
     * nice -n 19 (do not take all ressources) ?
     * use logger module instead of printing in the wild...
     * How can I do to not run command in shell ? is it make sense ?
-    * auto kill after XX hours using a timer in this script.
+    * auto kill after XX hours of running (use a timer).
 """
 
 
@@ -69,7 +69,6 @@ INCREMENTS_TO_KEEP = 15
 
 # 47 hours = 2 days minus one hour
 BACKUP_TIMEOUT = 47 * 60 * 60
-BACKUP_TIMEOUT = 5  # override for tests
 
 backup_list = [
   { 'local_dir' : 'laptop-home'
@@ -321,6 +320,8 @@ def main():
       if not exists(folder):
         makedirs(folder)
 
+    # TODO: detect here if the parameter is a local or a remote directory. Then, if the things to backup is a directory and the path doesn't end with a "/" add one.
+
     # Mirror the remote directory
     mirror_cmd = """rsync -axHhhv --numeric-ids --partial --stats --delete --delete-before %s %s """ % (backup_item['remote_dir'], mirror_dir)
     command_list.append(mirror_cmd)
@@ -328,10 +329,16 @@ def main():
     # Check rdiff-backup consistency: if the previous rdiff-backup transaction has failed (power failure, or reboot), rdiff-backup folder must be cleaned up else new increments can't be added
     check_consistency_cmd = """rdiff-backup -l "%s" """ % increment_dir
     (exit_code, cmd_output) = run(check_consistency_cmd)
-    # Clean up the repository if necessary: remove inconsistent last increment
-    if exit_code == 0 and cmd_output.find("--check-destination-dir") != -1:
-      roll_back_cmd = """rdiff-backup --check-destination-dir --force -v5 "%s" """ % increment_dir
-      command_list.append(roll_back_cmd)
+    # Auto clean the repository if necessary
+    if exit_code == 0:
+      # Remove inconsistent last increment
+      if cmd_output.find("--check-destination-dir") != -1:
+        roll_back_cmd = """rdiff-backup --check-destination-dir --force -v5 "%s" """ % increment_dir
+        command_list.append(roll_back_cmd)
+      # Repository is in a very bad shape: the only solution is to delete the rdiff-backup-data directory
+      elif cmd_output.find("Fatal Error: Bad rdiff-backup-data dir on destination side") != -1:
+        reset_repository_cmd = """rm -rf "%s" """ % abspath("%s/rdiff-backup-data" % increment_dir)
+        command_list.append(reset_repository_cmd)
 
     # Purge old increments first to free space
     purge_cmd = """rdiff-backup --force --remove-older-than %dB "%s" """ % (INCREMENTS_TO_KEEP, increment_dir)
