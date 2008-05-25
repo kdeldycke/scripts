@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2006-2007 Kevin Deldycke <kev@coolcavemen.com>
+# Copyright (C) 2006-2008 Kevin Deldycke <kev@coolcavemen.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update: 2007 mar 25
+  Last update: 2008 may 25
 
   Requirements:
     * linux
@@ -48,6 +48,7 @@
     * Rewrite code with classes, exceptions and object-oriented approach (this should lead to more pluggable code).
     * Use a generic multi-level log mechanism.
     * Send backup reports and errors by mail.
+    * Should I use sys.stderr.write() to print "FATAL" error messages ?
     * Clean-up the code. It's too messy !
 """
 
@@ -151,6 +152,7 @@ from os.path  import split as pathsplit
 SEP              = sep
 TIMEOUT          = 15
 SQL_FILENAME     = 'mysql-backup.sql'
+PYTHON_MIN_VER   = (2, 4)
 BACKUP_TYPE_LIST = [ 'FTP'
                    , 'FTPS'
                    , 'SSH'
@@ -160,19 +162,26 @@ BACKUP_TYPE_LIST = [ 'FTP'
 
 
 
-def run(cmd, debug=False):
+# Check python version
+if not hasattr(sys, 'version_info') or tuple(sys.version_info[:2]) < PYTHON_MIN_VER:
+  print "FATAL - This script require at least python %s" % '.'.join(PYTHON_MIN_VER)
+  sys.exit(1)
+
+
+def run(cmd, verbose=False, dry_run=False):
   """
-    Run system command and print debug message if require.
+    Run system command.
   """
   LANGUAGE = "en"
-  # Show "live" command output in debug mode
+  # Show "live" command output in verbose mode
   command_name = pathsplit(abspath(cmd.strip().split(' ')[0]))[1]
   command = "env LANGUAGE=%s %s" % (LANGUAGE, cmd)
-  if debug:
-    print "DEBUG - Run `%s`..." % command
+  if verbose:
+    print " INFO - Run `%s`..." % command
   # Debug mode or not, we print a nice formatted output of the command
-  result = getstatusoutput(command)
-  nice_log(log=result[1], cmd_name=command_name)
+  if not dry_run:
+    result = getstatusoutput(command)
+    nice_log(log=result[1], cmd_name=command_name)
 
 
 def nice_log(log, cmd_name, level="INFO"):
@@ -213,7 +222,7 @@ def checkCommand(command_list=None):
 
 
 
-def main(d=False):
+def main(verbose=False, dry_run=False):
   """
     Core of the backup script which implement the backup strategy.
   """
@@ -229,14 +238,14 @@ def main(d=False):
       user_string = "%s@" % user
     TEST_STRING = "SSH KEY AUTH OK"
     test_cmd = """ssh %s%s "echo '%s'" """ % (user_string, host, TEST_STRING)
-    if d:
-      print "DEBUG - run `%s`..." % test_cmd
+    if verbose:
+      print " INFO - run `%s`..." % test_cmd
     ssh = pexpect.spawn(test_cmd, timeout=TIMEOUT)
     time.sleep(1)
-    if d:
+    if verbose:
       import StringIO
       ssh_log = StringIO.StringIO()
-      ssh.setlog(ssh_log)
+      ssh.log_file = ssh_log
     ret_code = ssh.expect([TEST_STRING, '.ssword:*', pexpect.EOF, pexpect.TIMEOUT])
     time.sleep(1)
     password_less = None
@@ -246,15 +255,14 @@ def main(d=False):
       password_less = False
     else:
       print "ERROR - SSH server '%s' is unreachable" % host
-    if d:
-      nice_log(ssh_log.getvalue(), 'ssh', level="DEBUG")
+    if verbose:
+      nice_log(ssh_log.getvalue(), 'ssh')
       ssh_log.close()
     ssh.close()
     if password_less:
       print " INFO - SSH connection to '%s' is password-less" % host
     else:
       print " INFO - SSH connection to '%s' require password" % host
-
     return password_less
 
 
@@ -270,7 +278,7 @@ def main(d=False):
   # Check that we are running this script on a UNIX system
   from os import name as os_name
   if os_name != 'posix':
-    print "FATAL - This script can be run on POSIX systems only"
+    print "FATAL - This script doesn't support systems other than POSIX's"
     sys.exit(1)
 
   # Check that every command is installed
@@ -301,7 +309,7 @@ def main(d=False):
       else:
         backup_type = 'MYSQLDUMP'
     else:
-      print "ERROR - Backup type '%s' for '%s' is unrecognized." % (backup['type'], title)
+      print "ERROR - Backup type '%s' for '%s' is unrecognized: ignore it." % (backup['type'], title)
       # Reset backup type
       backup['type'] = ''
       continue
@@ -334,8 +342,9 @@ def main(d=False):
     try:
       import pexpect
     except ImportError:
-      print "FATAL - pexpect python module not found: It is required to make backup over SSH !"
+      print "FATAL - pexpect python module not found: it is required to make backup over SSH !"
       sys.exit(1)
+
 
 
   ######################
@@ -361,7 +370,8 @@ def main(d=False):
       }
     for (folder_type, folder_path) in backup_folders.items():
       if not exists(folder_path):
-        makedirs(folder_path)
+        if not dry_run:
+          makedirs(folder_path)
         print " INFO - '%s' folder created" % folder_path
 
 
@@ -388,7 +398,7 @@ def main(d=False):
         secure_options = 'set ftp:ssl-force true && set ftp:ssl-protect-data true && '
       # Get a copy of the remote directory
       ftp_backup = """lftp -c '%sset ftp:list-options -a && open -e "mirror -e --verbose=3 --parallel=2 . %s" %s'""" % (secure_options, backup_folders['mirror'], remote_url)
-      run(ftp_backup, d)
+      run(ftp_backup, verbose, dry_run)
 
 
     ### Mirror remote data via SSH
@@ -411,37 +421,38 @@ def main(d=False):
 
       # If it is passwordless, don't use pexpect but run() method instead
       if password_less:
-        run(rsync_backup, d)
+        run(rsync_backup, verbose, dry_run)
       else:
         # In this case we use pexpect to send the password
-        if d:
-          print "DEBUG - Run `%s`..." % rsync_backup  # XXX Duplicate with 'run()' method
-        p = pexpect.spawn(rsync_backup)   # TODO: create a method similar to run() but that take a password as parameter to handle pexpect nicely
-        import StringIO
-        p_log = StringIO.StringIO()
-        p.setlog(p_log)
-        i = p.expect(['.ssword:*', pexpect.EOF, pexpect.TIMEOUT], timeout=TIMEOUT)
-        time.sleep(1)
-        # Password required
-        if i == 0:
-          # rsync ask for a password. Send it.
-          p.sendline(backup['password'])
-          print " INFO - SSH password sent"
-          j = p.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=TIMEOUT)
+        if verbose:
+          print " INFO - Run `%s`..." % rsync_backup  # XXX Duplicate with 'run()' method
+        if not dry_run:
+          p = pexpect.spawn(rsync_backup)   # TODO: create a method similar to run() but that take a password as parameter to handle pexpect nicely
+          import StringIO
+          p_log = StringIO.StringIO()
+          p.setlog(p_log)
+          i = p.expect(['.ssword:*', pexpect.EOF, pexpect.TIMEOUT], timeout=TIMEOUT)
           time.sleep(1)
-          if j == 1:
+          # Password required
+          if i == 0:
+            # rsync ask for a password. Send it.
+            p.sendline(backup['password'])
+            print " INFO - SSH password sent"
+            j = p.expect([pexpect.EOF, pexpect.TIMEOUT], timeout=TIMEOUT)
+            time.sleep(1)
+            if j == 1:
+              print "ERROR - Backup via SSH reached timeout"
+              continue
+          elif i == 1:
+            print "ERROR - Backup via SSH didn't end correctly"
+            continue
+          elif i == 2:
             print "ERROR - Backup via SSH reached timeout"
             continue
-        elif i == 1:
-          print "ERROR - Backup via SSH didn't end correctly"
-          continue
-        elif i == 2:
-          print "ERROR - Backup via SSH reached timeout"
-          continue
-        # Terminate child process
-        nice_log(p_log.getvalue(), 'rsync')
-        p_log.close()
-        p.close()
+          # Terminate child process
+          nice_log(p_log.getvalue(), 'rsync')
+          p_log.close()
+          p.close()
 
 
     ### Mirror remote mysql database
@@ -464,7 +475,7 @@ def main(d=False):
         cmd = """ssh -C -2 -p %s %s@%s "%s" > %s""" % (backup['port'], backup['user'], backup['host'], mysqldump, sql_file)
       else:
         cmd = "%s > %s" % (mysqldump, sql_file)
-      run(cmd, d)
+      run(cmd, verbose, dry_run)
 
 
     ### Mirroring is successful
@@ -479,7 +490,7 @@ def main(d=False):
 
     # Use rdiff-backup to do efficient incremental backups
     rdiff_cmd = """rdiff-backup "%s" "%s" """ % (backup_folders['mirror'], backup_folders['diff'])
-    run(rdiff_cmd, d)
+    run(rdiff_cmd, verbose, dry_run)
 
     print " INFO - Increment added"
 
@@ -500,25 +511,26 @@ def main(d=False):
       print " INFO - Generate archive of previous month (= %s 00:00 snapshot)" % snapshot_date
       tmp_archives_path = abspath(backup_folders['archives'] + SEP + "tmp")
       if exists(tmp_archives_path):
-        run("""rm -rf "%s" """ % tmp_archives_path, d)
+        run("""rm -rf "%s" """ % tmp_archives_path, verbose, dry_run)
         print " INFO - Previous temporary folder '%s' removed" % tmp_archives_path
-      mkdir(tmp_archives_path)
+      if not dry_run:
+        mkdir(tmp_archives_path)
       print " INFO - Temporary folder '%s' created" % tmp_archives_path
       rdiff_cmd = """rdiff-backup -r "%s" "%s" "%s" """ % ( snapshot_date
                                                           , backup_folders['diff']
                                                           , tmp_archives_path
                                                           )
-      run(rdiff_cmd, d)
-      run("tar c -C %s ./ | bzip2 > %s" % (tmp_archives_path, monthly_archive), d)
+      run(rdiff_cmd, verbose, dry_run)
+      run("tar c -C %s ./ | bzip2 > %s" % (tmp_archives_path, monthly_archive), verbose, dry_run)
       # Delete the tmp folder
-      run("""rm -vrf "%s" """ % tmp_archives_path, d)
+      run("""rm -vrf "%s" """ % tmp_archives_path, verbose, dry_run)
     else:
       print " INFO - No need to generate archive: previous month already archived"
 
     # Keep last 32 increments (31 days = 1 month + 1 day)
     print " INFO - Remove increments older than 32 days"
     rdiff_cmd = """rdiff-backup --force --remove-older-than 32B "%s" """ % backup_folders['diff']
-    run(rdiff_cmd, d)
+    run(rdiff_cmd, verbose, dry_run)
 
     # Final message before next backup item
     print " INFO - Backup successful"
@@ -529,8 +541,10 @@ def usage():
   print """Usage: %s [options]
 
 Options:
-  -d, --debug
-      Run in debug mode (show command lines).
+  -d, --dry-run
+      "Dry run": do not perform any file system operation.
+  -v, --verbose
+      Output much more info.
   -h, --help
       Show this screen.
 
@@ -542,23 +556,26 @@ Supported backup type:""" % sys.argv[0]
 if __name__ == "__main__":
   try:
     opts, args = getopt.getopt( sys.argv[1:]
-                              , "hd"
-                              , ["help", "debug"]
+                              , "dvh"
+                              , ["dry-run", "verbose", "help"]
                               )
   except getopt.GetoptError:
-    # exit on command line error
+    print "FATAL - Bad command line options / parameters."
     sys.exit(2)
 
   # Start action according parameters
-  debug = False
+  dry_run = False
+  verbose = False
   for o, a in opts:
-    if o in ("-d", "--debug"):
-      debug = True
-    elif o in ("-h", "--help"):
+    if o in ("-d", "--dry-run"):
+      dry_run = True
+    if o in ("-v", "--verbose"):
+      verbose = True
+    if o in ("-h", "--help"):
       usage()
       sys.exit(0)
 
-  main(debug)
+  main(verbose, dry_run)
   print ''
   print " INFO - All backup items processed"
   sys.exit(0)
