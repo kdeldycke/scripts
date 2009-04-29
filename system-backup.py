@@ -3,7 +3,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2007 Kevin Deldycke <kev@coolcavemen.com>
+# Copyright (C) 2007-2009 Kevin Deldycke <kevin@deldycke.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
     ( http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink )
     published on the official rdiff-backup wiki ( http://wiki.rdiff-backup.org ).
 
-  Last update: 2007 dec 24
+  Last update: 2009 apr 29
 
   Requirements:
     * linux
@@ -330,15 +330,14 @@ def main():
     check_consistency_cmd = """rdiff-backup -l "%s" """ % increment_dir
     (exit_code, cmd_output) = run(check_consistency_cmd)
     # Auto clean the repository if necessary
-    if exit_code == 0:
-      # Remove inconsistent last increment
-      if cmd_output.find("--check-destination-dir") != -1:
-        roll_back_cmd = """rdiff-backup --check-destination-dir --force -v5 "%s" """ % increment_dir
-        command_list.append(roll_back_cmd)
-      # Repository is in a very bad shape: the only solution is to delete the rdiff-backup-data directory
-      elif cmd_output.find("Fatal Error: Bad rdiff-backup-data dir on destination side") != -1:
-        reset_repository_cmd = """rm -rf "%s" """ % abspath("%s/rdiff-backup-data" % increment_dir)
-        command_list.append(reset_repository_cmd)
+    # Case 1: remove inconsistent last increment
+    if cmd_output.find("--check-destination-dir") != -1:
+      roll_back_cmd = """rdiff-backup --check-destination-dir --force -v5 "%s" """ % increment_dir
+      command_list.append(roll_back_cmd)
+    # Case 2: repository is in a very bad shape, the only solution is to delete the rdiff-backup-data directory
+    elif cmd_output.find("Fatal Error: Bad rdiff-backup-data dir on destination side") != -1:
+      reset_repository_cmd = """rm -rf "%s" """ % abspath("%s/rdiff-backup-data" % increment_dir)
+      command_list.append(reset_repository_cmd)
 
     # Purge old increments first to free space
     purge_cmd = """rdiff-backup --force --remove-older-than %dB "%s" """ % (INCREMENTS_TO_KEEP, increment_dir)
