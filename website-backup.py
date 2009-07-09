@@ -1,8 +1,9 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 ##############################################################################
 #
-# Copyright (C) 2006-2008 Kevin Deldycke <kev@coolcavemen.com>
+# Copyright (C) 2006-2009 Kevin Deldycke <kevin@deldycke.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,7 +22,7 @@
 ##############################################################################
 
 """
-  Last update: 2008 may 25
+  Last update: 2009 jul 09
 
   Requirements:
     * linux
@@ -90,7 +91,7 @@ backup_list = [
   { 'title'     : 'Simple SSH backup with password and exotic port'
   , 'type'      : 'ssh'
   , 'host'      : 'test.com'
-  , 'port'      : '2200'
+  , 'port'      : 2200
   , 'remote_dir': '~/public_html'
   , 'user'      : '<user>'
   , 'password'  : '<password>'
@@ -227,17 +228,17 @@ def main(verbose=False, dry_run=False):
     Core of the backup script which implement the backup strategy.
   """
 
-  def isSSHPasswordLess(host, user=None):
+  def isSSHPasswordLess(host, user=None, port=22):
     """
       This method test if a ssh authentification on a remote machine can be done via a
       rsa-key/certificate or require a password.
     """
     # If no user given try "user-less" connection
     user_string = ''
-    if user not in (None, '') and len(user) > 0:
+    if user not in (None, ''):
       user_string = "%s@" % user
     TEST_STRING = "SSH KEY AUTH OK"
-    test_cmd = """ssh %s%s "echo '%s'" """ % (user_string, host, TEST_STRING)
+    test_cmd = """ssh -p %s %s%s "echo '%s'" """ % (port, user_string, host, TEST_STRING)
     if verbose:
       print " INFO - run `%s`..." % test_cmd
     ssh = pexpect.spawn(test_cmd, timeout=TIMEOUT)
@@ -254,15 +255,15 @@ def main(verbose=False, dry_run=False):
     elif ret_code == 1:
       password_less = False
     else:
-      print "ERROR - SSH server '%s' is unreachable" % host
+      print "ERROR - SSH server '%s:%s' is unreachable" % (host, port)
     if verbose:
       nice_log(ssh_log.getvalue(), 'ssh')
       ssh_log.close()
     ssh.close()
     if password_less:
-      print " INFO - SSH connection to '%s' is password-less" % host
+      print " INFO - SSH connection to '%s:%s' is password-less" % (host, port)
     else:
-      print " INFO - SSH connection to '%s' require password" % host
+      print " INFO - SSH connection to '%s:%s' require password" % (host, port)
     return password_less
 
 
@@ -295,7 +296,7 @@ def main(verbose=False, dry_run=False):
   # Check datas and requirement for each backup
   # Doing this right now is nicer to the user: thanks to this he doesn't need to wait the end of the (X)th backup to get the error about the (X+1)th
   for backup in backup_list:
-    # Calculate backup type
+    # Normalize backup type
     backup_type = backup['type'].lower().strip()
     if backup_type.find('ftps') != -1:
       backup_type = 'FTPS'
@@ -325,17 +326,16 @@ def main(verbose=False, dry_run=False):
                         , 'MYSQLDUMP+SSH': 'ssh' # TODO: How to check that 'mysqldump' is present on the distant machine ???
                         }
     checkCommand(REQUIRED_COMMANDS[backup_type])
-    # Add default port if missing
-    DEFAULT_PORT = { 'FTP'          : {'port': 21}
-                   , 'FTPS'         : {'port': 21}
-                   , 'SSH'          : {'port': 22}
-                   , 'MYSQLDUMP'    : {'db_port': 3306}
-                   , 'MYSQLDUMP+SSH': {'port': 22, 'db_port': 3306}
-                   }
-    if backup_type in DEFAULT_PORT.keys():
-      for (port_type, port_number) in DEFAULT_PORT[backup_type].items():
-        if (not backup.has_key(port_type)) or len(backup[port_type]) == 0:
-          backup[port_type] = port_number
+    # Set default parameters if missing
+    DEFAULT_PARAMETERS = { 'FTP'          : {'port': 21}
+                         , 'FTPS'         : {'port': 21}
+                         , 'SSH'          : {'port': 22}
+                         , 'MYSQLDUMP'    : {'db_port': 3306}
+                         , 'MYSQLDUMP+SSH': {'port': 22, 'db_port': 3306}
+                         }
+    default_config = DEFAULT_PARAMETERS.get(backup_type, {}).copy()
+    default_config.update(backup)
+    backup.update(default_config)
 
   # Import pexpect if necessary
   if is_pexpect_required:
@@ -405,16 +405,16 @@ def main(verbose=False, dry_run=False):
     elif backup_type == 'SSH':
 
       ## Test SSH password-less connection
-      password_less = isSSHPasswordLess(backup['host'], backup['user'])
+      password_less = isSSHPasswordLess(backup['host'], backup['user'], backup['port'])
       if password_less == None:
-        print "ERROR - Can't guess authentication method of '%s'" % backup['host']
+        print "ERROR - Can't guess authentication method of '%s:%s'" % (backup['host'], backup['port'])
         continue
       if not password_less and not (backup.has_key('password') and len(backup['password']) > 0):
         print "ERROR - No password provided !"
         continue
       # Use rsync + ssh to make a mirror of the distant folder
       user_string = ''
-      if backup['user'] != None and len(backup['user']) > 0:
+      if backup['user'] not in (None, ''):
         user_string = "%s@" % backup['user']
       remote_url = "%s%s:%s" % (user_string, backup['host'], backup['remote_dir'])
       rsync_backup = """rsync -axHvz --numeric-ids --progress --stats --delete --partial --delete-excluded -e 'ssh -2 -p %s' %s %s""" % (backup['port'], remote_url, backup_folders['mirror'])
@@ -468,9 +468,9 @@ def main(verbose=False, dry_run=False):
       sql_file = abspath(SEP.join([backup_folders['mirror'], SQL_FILENAME]))
       if backup_type == 'MYSQLDUMP+SSH':
         # Test SSH password-less connection
-        password_less = isSSHPasswordLess(backup['host'], backup['user'])
+        password_less = isSSHPasswordLess(backup['host'], backup['user'], backup['port'])
         if password_less == None:
-          print "FATAL - Can't guess authentication method of '%s'" % backup['host']
+          print "FATAL - Can't guess authentication method of '%s:%s'" % (backup['host'], backup['port'])
           continue
         cmd = """ssh -C -2 -p %s %s@%s "%s" > %s""" % (backup['port'], backup['user'], backup['host'], mysqldump, sql_file)
       else:
