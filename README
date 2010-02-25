@@ -1,11 +1,27 @@
 Description
------------
+===========
 
-You'll find here all the open-source code I produce. This is just a collection of tiny utility scripts.
+You'll find here all the open-source code I produce. This is just a collection of tiny utility scripts, patches, hacks and forks I want to or have to redistribute with the open source community at large.
 
 If for any reason one of these hacks get momentum, I'll move them to a stand-alone and dedicated project.
 
 
+Project list
+============
+
+drupify-fork
+------------
+
+This is a fork of the Drupify theme for Drupal 6.x. It holds all the modifications and hacks I added for Cool Cavemen's online shop (http://shop.coolcavemen.com).
+
+
+Legals
+======
+
+Licence
+-------
+
+Unless otherwise noted, code in this repository is distributed under a GNU GPL2+ licence.
 
 Author
 ------
