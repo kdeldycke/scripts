@@ -1,35 +1,51 @@
 Description
 ===========
 
+
 You'll find here all the open-source code I produce. This is just a collection of tiny utility scripts, patches, hacks and forks I want to or have to redistribute with the open source community at large.
 
 If for any reason one of these hacks get momentum, I'll move them to a stand-alone and dedicated project.
 
 
+
 Project list
 ============
+
 
 drupify-fork
 ------------
 
-This is a fork of the Drupify theme for Drupal 6.x. It holds all the modifications and hacks I added for Cool Cavemen's online shop (http://shop.coolcavemen.com).
+  This is a fork of the Drupify theme for Drupal 6.x. It holds all the modifications and hacks I added for Cool Cavemen's online shop (http://shop.coolcavemen.com).
+
+
+maildir-deduplicate
+-------------------
+
+  This script compare all mails in a maildir folder and subfolders, then delete duplicate mails.
+  You can give a list of mail headers to ignore when comparing mails between each others.
+  I used this script to clean up a messed maildir folder after I move several mails from a Lotus Notes database.
+ 
 
 
 Legals
 ======
 
+
 Licence
 -------
 
-Unless otherwise noted, code in this repository is distributed under a GNU GPL2+ licence.
+  Unless otherwise noted, code in this repository is distributed under a GNU GPL2+ licence.
+
 
 Disclaimer
 ----------
 
-All the code here is provided as is and with no guarentee - back up your data first, I am not responsible for anything bad that happens to you as a result of using my hacks.
+  All the code here is provided as is and with no guarentee - back up your data first, I am not responsible for anything bad that happens to you as a result of using my hacks.
+
 
 Author
 ------
 
-Kevin Deldycke. Find me at http://kevin.deldycke.com .
+  Kevin Deldycke. Find me at http://kevin.deldycke.com .
+
 
