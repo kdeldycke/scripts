@@ -75,7 +75,7 @@ la-bas.org-archive-download
 maildir++2kmail
 ---------------
 
-  This script import a Maildir++ directory and its subfolders to Kmail.
+  This script import a Maildir++ ( http://en.wikipedia.org/wiki/Maildir#Maildir.2B.2B ) directory and its subfolders to Kmail.
 
 
 maildir-deduplicate
@@ -113,13 +113,13 @@ phorum_anon2user
 phorum_bodies_update
 --------------------
 
-  Script to convert old message format to new format (with the conversion of html tags to phorum specific tags).
+  Script to convert old message format to new format (with the conversion of html tags to Phorum specific tags).
 
 
 phorum_to_e107
 --------------
 
-  This script is designed to migrate phorum 3.x datas to a new empty e107 website. The destination e107 platform must be empty because this script copy phorum id and don’t re-index database records.
+  This script is designed to migrate Phorum 3.x ( http://www.phorum.org ) datas to a new empty e107 website. The destination e107 platform must be empty because this script copy Phorum id and don’t re-index database records.
 
 
 process-monitoring
@@ -131,13 +131,13 @@ process-monitoring
 system-backup
 -------------
 
-  This script automate system backups thanks to rdiff-backup and rsync. It is based on an idea from the “Backup up on unreliable link” article from the official rdiff-backup wiki.
+  This script automate system backups thanks to rdiff-backup and rsync. It is based on an idea from the “Backup up on unreliable link” article ( http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink ) from the official rdiff-backup wiki ( http://wiki.rdiff-backup.org ).
 
 
 website-backup
 --------------
 
-  This script automate the mirroring of several external websites (both files and MySQL databases) thanks to lftp, mysqldump, ssh and rsync. Then it make an incremental backup each day thanks to rdiff-backup and finally a snapshot each month. Here is the list of latest changes and detailed features.
+  This script automate the mirroring of several external websites (both files and MySQL databases) thanks to lftp, mysqldump, ssh and rsync. Then it make an incremental backup each day thanks to rdiff-backup and finally a snapshot each month.
 
 
 xwd2png
