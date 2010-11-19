@@ -9,7 +9,7 @@
 |                 - mySQL version 4.0.15
 |
 |   (c)Kevin Deldycke 2004
-|   http://www.funky-storm.com
+|   http://kevin.deldycke.com
 |   kevin@funky-storm.com
 |
 |   Released under the terms and conditions of the

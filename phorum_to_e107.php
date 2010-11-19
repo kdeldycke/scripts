@@ -14,7 +14,7 @@
 |   Date: 11 apr 2005
 |
 |   (c)Kevin Deldycke 2004-2005
-|   http://www.coolcavemen.com
+|   http://kevin.deldycke.com
 |   kevin@deldycke.com
 |
 |   Released under the terms and conditions of the
