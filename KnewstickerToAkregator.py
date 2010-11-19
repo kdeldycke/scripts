@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2005-2006 Kevin Deldycke - kev@coolcavemen.com
+# Copyright (C) 2005-2006 Kevin Deldycke - kevin@deldycke.com
 #                         Martin Vidner  - http://vidner.net/martin/
 #
 # This program is Free Software; you can redistribute it and/or

@@ -15,7 +15,7 @@
 |
 |   (c)Kevin Deldycke 2004-2005
 |   http://www.coolcavemen.com
-|   kev@coolcavemen.com
+|   kevin@deldycke.com
 |
 |   Released under the terms and conditions of the
 |   GNU General Public License (http://gnu.org).

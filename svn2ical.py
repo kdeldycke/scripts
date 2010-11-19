@@ -3,7 +3,7 @@
 ##############################################################################
 #
 # Copyright (C) 2007 Brian Ray - http://kazavoo.com/blog/index.php?/archives/28-SVN-to-ICAL.html
-#                    Kevin Deldycke <kev@coolcavemen.com>
+#                    Kevin Deldycke <kevin@deldycke.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

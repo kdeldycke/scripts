@@ -219,7 +219,7 @@ for form in br.forms():
 
 #form.set_value("megakev", name="cheeses")
 first_form["user_login"] = "megakev"
-first_form["user_email"] = "kev@coolcavemen.com"
+first_form["user_email"] = "kevin@deldycke.com"
 print first_form
 
 #response2 = first_form.submit()  # submit current form

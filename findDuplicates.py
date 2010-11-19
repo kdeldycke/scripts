@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2006 Kevin Deldycke <kev@coolcavemen.com>
+# Copyright (C) 2006 Kevin Deldycke <kevin@deldycke.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
