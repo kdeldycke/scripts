@@ -10,7 +10,7 @@
 |
 |   (c)Kevin Deldycke 2004
 |   http://kevin.deldycke.com
-|   kevin@funky-storm.com
+|   kevin@deldycke.com
 |
 |   Released under the terms and conditions of the
 |   GNU General Public License (http://gnu.org).
