@@ -20,11 +20,6 @@
 #
 ##############################################################################
 
-"""
-  Last update : 2005 jul 20
-"""
-
-
 
 from commands import getstatusoutput
 from os import system, path

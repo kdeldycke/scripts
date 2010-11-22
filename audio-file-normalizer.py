@@ -21,8 +21,6 @@
 ##############################################################################
 
 """
-  Last update : 2007 may 16
-
   Description:
     This script parse a m3u playlist and copy all audio tracks in a given folder.
     This script can also convert files to a given format if needed.

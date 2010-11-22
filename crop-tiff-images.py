@@ -20,11 +20,6 @@
 #
 ##############################################################################
 
-"""
-  Last update : 2005 oct 12
-"""
-
-
 
 import os, sys, glob, getopt
 from commands import getstatusoutput

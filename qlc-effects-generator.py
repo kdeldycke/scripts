@@ -20,11 +20,6 @@
 #
 ##############################################################################
 
-"""
-  Last update : 2009 nov 12
-"""
-
-
 """Hard-coded mapping of predefined colors.
 In The future, use a big table based on Rosco and Lee filters.
 """

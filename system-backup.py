@@ -28,8 +28,6 @@
     ( http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink )
     published on the official rdiff-backup wiki ( http://wiki.rdiff-backup.org ).
 
-  Last update: 2009 apr 29
-
   Requirements:
     * linux
     * python >= 2.4

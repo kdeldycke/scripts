@@ -18,10 +18,8 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ##############################################################################
-"""
-  Last update:
-    2007 nov 25
 
+"""
   Description:
     This script import a Maildir++ folder and its subfolders to Kmail local folder.
 """

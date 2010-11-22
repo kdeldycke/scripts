@@ -21,8 +21,6 @@
 ##############################################################################
 
 """
-  Last update: 2006 aug 04
-
   Info:
     This script get agent all possible agent list from a directory that contain apache log file, and count the frequency.
 """

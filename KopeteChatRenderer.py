@@ -20,10 +20,6 @@
 #
 ##############################################################################
 
-"""
-  Last update: 2007 may 03
-"""
-
 
 import getopt, sys, os
 from datetime import datetime

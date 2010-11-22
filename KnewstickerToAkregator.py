@@ -31,9 +31,6 @@ Prerequisite :
   - KNewsTicker
   - Python
   - pyxml
-
-Last update :
-  2006 Aug 31
 """
 
 

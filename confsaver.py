@@ -21,8 +21,6 @@
 ##############################################################################
 
 """
-Last update : 2005 aug 05
-
 Improvements :
 
   * Use a --force -f option to automatically erase the user files
