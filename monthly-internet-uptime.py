@@ -21,7 +21,7 @@
 ##############################################################################
 
 """
-  Last update : 20O6 feb 14
+  Last update : 2006 feb 14
   TODO:
     * manage years
     * sort output by months
