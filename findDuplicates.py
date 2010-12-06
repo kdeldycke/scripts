@@ -29,7 +29,6 @@ from commands import getstatusoutput
 SEP = os.path.sep
 
 
-
 def usage():
   print """Usage : findDuplicates folder
 
@@ -37,7 +36,6 @@ def usage():
       Folder that contain files to check.
       Default: current folder.
 """
-
 
 
 def getFileContent(file_path):
@@ -48,13 +46,10 @@ def getFileContent(file_path):
   if not os.path.isfile(file_path):
     output("ERROR: " + file_path + " doesn't exist.")
     return None
-
   # Get file content
   file_path = os.path.abspath(file_path)
   file_object = open(file_path, 'r')
-
   return file_object.read()
-
 
 
 def getMD5(file_path):
@@ -74,9 +69,7 @@ def getMD5(file_path):
   return file_checksum
 
 
-
 if __name__ == "__main__":
-
   # Get the folder where files to compare are located
   param_list = sys.argv[1:]
   folder_path = None
@@ -85,7 +78,6 @@ if __name__ == "__main__":
     folder_path = os.path.abspath(os.getcwd())
   else:
     folder_path = os.path.abspath(param_list[0])
-
   # Create the list of file's path to compare
   file_list = []
   if os.path.isdir(folder_path):
@@ -96,10 +88,8 @@ if __name__ == "__main__":
   else:
     print "'%s' doesn't exist or is not a directory." % folder_path
     sys.exit()
-
   # This dict will contain the list of files indexed by their md5 checksum
   checksum_dict = {}
-
   # Analyse each file
   for file_to_hash in file_list:
     # Get the checksum of the file
@@ -112,7 +102,6 @@ if __name__ == "__main__":
       checksum_dict[file_checksum] = checksum_dict[file_checksum] + [file_to_hash]
     else:
       checksum_dict[file_checksum] = [file_to_hash]
-
   # Show results
   no_duplicates = True
   for (checksum, files) in checksum_dict.items():
@@ -124,6 +113,5 @@ if __name__ == "__main__":
       for file_path in files:
         file_name_list.append("%r" % os.path.basename(os.path.abspath(file_path)))
       print "Duplicate files: %s" % ' '.join(file_name_list)
-
   if no_duplicates:
     print "No duplicate files found in %r." % folder_path
