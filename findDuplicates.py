@@ -26,7 +26,7 @@ from commands import getstatusoutput
 
 
 def usage():
-  print """Usage : findDuplicates folder
+  print """Usage : findDuplicates.py folder
 
 ** [folder]
       Folder that contain files to check.
@@ -40,7 +40,7 @@ def getFileContent(file_path):
   """
   # Verify that the file exist
   if not os.path.isfile(file_path):
-    output("ERROR: " + file_path + " doesn't exist.")
+    print "ERROR: %s doesn't exist." % file_path
     return None
   # Get file content
   file_path = os.path.abspath(file_path)
@@ -54,7 +54,7 @@ def getMD5(file_path):
   """
   file_checksum = None
   file_content = getFileContent(file_path)
-  if file_content != None:
+  if file_content:
     try:
       file_checksum = hashlib.md5(file_content).hexdigest()
     except:
@@ -75,29 +75,22 @@ if __name__ == "__main__":
   else:
     folder_path = os.path.abspath(param_list[0])
   if not os.path.isdir(folder_path):
-    print "'%s' doesn't exist or is not a directory." % folder_path
+    print "%s doesn't exist or is not a directory." % folder_path
     sys.exit()
 
-  # Create the list of file's path to compare
-  file_list = []
+  # Browse folder sub-structure and compute checksums of all files
+  checksum_dict = {}
   for parent, dirs, files in os.walk(folder_path):
     for filename in files:
-      file_list.append(os.path.join(parent, filename))
+      filepath = os.path.join(parent, filename)
+      checksum = getMD5(filepath)
+      if not checksum:
+        print "Can't compute checksum of %s" % filepath
+        continue
+      if checksum not in checksum_dict:
+        checksum_dict[checksum] = []
+      checksum_dict[checksum] = checksum_dict[checksum] + [filepath]
 
-  # This dict will contain the list of files indexed by their md5 checksum
-  checksum_dict = {}
-  # Analyse each file
-  for file_to_hash in file_list:
-    # Get the checksum of the file
-    file_checksum = getMD5(file_to_hash)
-    # Proceed to next file if md5sum fail
-    if file_checksum == None:
-      continue
-    # Save the file in the right place in the dict
-    if checksum_dict.has_key(file_checksum):
-      checksum_dict[file_checksum] = checksum_dict[file_checksum] + [file_to_hash]
-    else:
-      checksum_dict[file_checksum] = [file_to_hash]
   # Show results
   no_duplicates = True
   for (checksum, files) in checksum_dict.items():
