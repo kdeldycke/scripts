@@ -24,7 +24,7 @@
   TODO: Add recursivity
 """
 
-import sys, os, md5
+import sys, os, hashlib
 from commands import getstatusoutput
 SEP = os.path.sep
 
@@ -65,13 +65,12 @@ def getMD5(file_path):
   file_content = getFileContent(file_path)
   if file_content != None:
     try:
-      file_checksum = md5.new(file_content).hexdigest()
+      file_checksum = hashlib.md5(file_content).hexdigest()
     except:
       # Use the system command line if Python's library fails, as sometimes it fails on big files.
       result = getstatusoutput("md5sum %s" % file_path)
       if result[0] == 0:
         file_checksum = result[1].split(' ')[0]
-  print file_checksum
   return file_checksum
 
 
