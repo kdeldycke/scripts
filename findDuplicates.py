@@ -25,6 +25,9 @@
 ** [folder1 folder2 ...]
       List of folders to check for duplicate files.
       Default: current folder.
+
+** -h, --help
+      Print this screen.
 """
 
 
