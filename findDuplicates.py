@@ -20,18 +20,16 @@
 #
 ##############################################################################
 
-
-import sys, os, hashlib
-from commands import getstatusoutput
-
-
-def usage():
-  print """Usage : findDuplicates.py folder
+"""Usage : findDuplicates.py folder
 
 ** [folder]
       Folder that contain files to check.
       Default: current folder.
 """
+
+
+import sys, os, hashlib
+from commands import getstatusoutput
 
 
 def getFileContent(file_path):
