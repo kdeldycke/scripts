@@ -20,13 +20,9 @@
 #
 ##############################################################################
 
-"""
-  TODO: Add recursivity
-"""
 
 import sys, os, hashlib
 from commands import getstatusoutput
-SEP = os.path.sep
 
 
 def usage():
@@ -78,16 +74,16 @@ if __name__ == "__main__":
     folder_path = os.path.abspath(os.getcwd())
   else:
     folder_path = os.path.abspath(param_list[0])
-  # Create the list of file's path to compare
-  file_list = []
-  if os.path.isdir(folder_path):
-    for entry in os.listdir(folder_path):
-      entry_path = ''.join([folder_path, SEP, entry])
-      if os.path.isfile(entry_path):
-        file_list.append(entry_path)
-  else:
+  if not os.path.isdir(folder_path):
     print "'%s' doesn't exist or is not a directory." % folder_path
     sys.exit()
+
+  # Create the list of file's path to compare
+  file_list = []
+  for parent, dirs, files in os.walk(folder_path):
+    for filename in files:
+      file_list.append(os.path.join(parent, filename))
+
   # This dict will contain the list of files indexed by their md5 checksum
   checksum_dict = {}
   # Analyse each file
