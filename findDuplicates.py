@@ -134,6 +134,7 @@ def main(argv=None):
       if delete_threshold and duplicates >= delete_threshold:
         for f in files:
           print "  Removing: %s" % f
+          os.remove(f)
       print ''
   if no_duplicates:
     print "No duplicate files found in %r." % folder_list
