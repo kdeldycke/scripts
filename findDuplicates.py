@@ -91,19 +91,25 @@ if __name__ == "__main__":
   if not folder_list:
     folder_list.append(os.path.abspath(os.getcwd()))
 
-  # Browse folder sub-structure and compute checksums of all files
-  checksum_dict = {}
+  # Browse all folders and set the list of files to check
+  files_to_check = []
   for folder_path in folder_list:
     for parent, dirs, files in os.walk(folder_path):
       for filename in files:
         filepath = os.path.join(parent, filename)
-        checksum = getMD5(filepath)
-        if not checksum:
-          print "Can't compute checksum of %s" % filepath
-          continue
-        if checksum not in checksum_dict:
-          checksum_dict[checksum] = []
-        checksum_dict[checksum] = checksum_dict[checksum] + [filepath]
+        if filepath not in files_to_check:
+          files_to_check.append(filepath)
+
+  # Compute checksums of all files
+  checksum_dict = {}
+  for filepath in files_to_check:
+    checksum = getMD5(filepath)
+    if not checksum:
+      print "Can't compute checksum of %s" % filepath
+      continue
+    if checksum not in checksum_dict:
+      checksum_dict[checksum] = []
+    checksum_dict[checksum] = checksum_dict[checksum] + [filepath]
 
   # Show results
   no_duplicates = True
