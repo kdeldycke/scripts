@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# Copyright (C) 2006 Kevin Deldycke <kevin@deldycke.com>
+# Copyright (C) 2006-2010 Kevin Deldycke <kevin@deldycke.com>
 #
 # This program is Free Software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -57,6 +57,19 @@ def getFileContent(file_path):
 
 
 
+def getMD5(file_path):
+  """
+    Return the MD5 of a file 
+  """
+  file_checksum = None
+  result = getstatusoutput("md5sum %s" % file_path)
+  if result[0] == 0:
+    file_checksum = result[1].split(' ')[0]
+  # Proceed to next file if md5sum fail
+  return file_checksum
+
+
+
 if __name__ == "__main__":
 
   # Get the folder where files to compare are located
@@ -84,12 +97,8 @@ if __name__ == "__main__":
 
   # Analyse each file
   for file_to_hash in file_list:
-    # Calculate the MD5 of the file
-    result = getstatusoutput("md5sum %s" % file_to_hash)
-    # Check that the result returned by md5sum linux command is good
-    file_checksum = None
-    if result[0] == 0:
-      file_checksum = result[1].split(' ')[0]
+    # Get the checksum of the file
+    file_checksum = getMD5(file_to_hash)
     # Proceed to next file if md5sum fail
     if file_checksum == None:
       continue
