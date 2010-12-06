@@ -62,10 +62,16 @@ def getMD5(file_path):
     Return the MD5 of a file 
   """
   file_checksum = None
-  result = getstatusoutput("md5sum %s" % file_path)
-  if result[0] == 0:
-    file_checksum = result[1].split(' ')[0]
-  # Proceed to next file if md5sum fail
+  file_content = getFileContent(file_path)
+  if file_content != None:
+    try:
+      file_checksum = md5.new(file_content).hexdigest()
+    except:
+      # Use the system command line if Python's library fails, as sometimes it fails on big files.
+      result = getstatusoutput("md5sum %s" % file_path)
+      if result[0] == 0:
+        file_checksum = result[1].split(' ')[0]
+  print file_checksum
   return file_checksum
 
 
@@ -107,21 +113,6 @@ if __name__ == "__main__":
       checksum_dict[file_checksum] = checksum_dict[file_checksum] + [file_to_hash]
     else:
       checksum_dict[file_checksum] = [file_to_hash]
-
-  # PURE PYTHON VERSION of MD5 calculation. This method is not used because it doesn't work on big files.
-  ## Analyse each file
-  #for file_to_hash in file_list:
-    #file_content = getFileContent(file_to_hash)
-    ## Can't open file: proceed to next one
-    #if file_content == None:
-      #continue
-    ## Calculate the MD5 of the file
-    #file_checksum = md5.new(file_content).digest()
-    ## Save the file in the right place in the dict
-    #if checksum_dict.has_key(file_checksum):
-      #checksum_dict[file_checksum] = checksum_dict[file_checksum] + [file_to_hash]
-    #else:
-      #checksum_dict[file_checksum] = [file_to_hash]
 
   # Show results
   no_duplicates = True
