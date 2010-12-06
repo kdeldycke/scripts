@@ -69,26 +69,28 @@ def getMD5(file_path):
   return file_checksum
 
 
-if __name__ == "__main__":
+def main(argv=None):
+  if argv is None:
+    argv = sys.argv
   # Parse command line options
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+    opts, args = getopt.getopt(argv[1:], "h", ["help"])
   except getopt.error, msg:
     print msg
     print "For help use --help"
-    sys.exit(2)
+    return 2
   # Process options
   for o, a in opts:
     if o in ("-h", "--help"):
       print __doc__
-      sys.exit(0)
+      return 0
   # Process arguments
   folder_list = []
   for folder in args:
     folder_path = os.path.abspath(folder)
     if not os.path.isdir(folder_path):
       print "%s doesn't exist or is not a directory." % folder_path
-      sys.exit()
+      return 1
     folder_list.append(folder_path)
   # No folder defined, use current folder
   if not folder_list:
@@ -123,5 +125,9 @@ if __name__ == "__main__":
       print "Duplicate files:%s\n" % '\n  * '.join([''] + files)
   if no_duplicates:
     print "No duplicate files found in %r." % folder_list
-  sys.exit(0)
+  return 0
+
+
+if __name__ == "__main__":
+  sys.exit(main())
 
