@@ -95,12 +95,10 @@ if __name__ == "__main__":
   no_duplicates = True
   for (checksum, files) in checksum_dict.items():
     if len(files) > 1:
-      if no_duplicates == True:
-        print "Duplicate files found in %r." % folder_path
       no_duplicates = False
-      file_name_list = []
-      for file_path in files:
-        file_name_list.append("%r" % os.path.basename(os.path.abspath(file_path)))
-      print "Duplicate files: %s" % ' '.join(file_name_list)
+      files.sort()
+      print "Duplicate files:%s\n" % '\n  * '.join([''] + files)
   if no_duplicates:
     print "No duplicate files found in %r." % folder_path
+  sys.exit(0)
+
