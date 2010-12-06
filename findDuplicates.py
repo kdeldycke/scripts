@@ -26,6 +26,9 @@
       List of folders to check for duplicate files.
       Default: current folder.
 
+** -d X, --delete-threshold=X
+      This option will remove all files having X duplicates or more.
+
 ** -h, --help
       Print this screen.
 """
@@ -74,16 +77,19 @@ def main(argv=None):
     argv = sys.argv
   # Parse command line options
   try:
-    opts, args = getopt.getopt(argv[1:], "h", ["help"])
+    opts, args = getopt.getopt(argv[1:], "hd:", ["help", "delete-threshold="])
   except getopt.error, msg:
     print msg
     print "For help use --help"
     return 2
   # Process options
+  delete_threshold = None
   for o, a in opts:
     if o in ("-h", "--help"):
       print __doc__
       return 0
+    elif o in ("-d", "--delete-threshold"):
+      delete_threshold = int(a)
   # Process arguments
   folder_list = []
   for folder in args:
@@ -119,10 +125,16 @@ def main(argv=None):
   # Show results
   no_duplicates = True
   for (checksum, files) in checksum_dict.items():
-    if len(files) > 1:
+    duplicates = len(files)
+    if duplicates > 1:
       no_duplicates = False
       files.sort()
-      print "Duplicate files:%s\n" % '\n  * '.join([''] + files)
+      print "%s duplicate files found:%s" % (duplicates, '\n  * '.join([''] + files))
+      # If enough duplicate files found remove them all
+      if delete_threshold and duplicates >= delete_threshold:
+        for f in files:
+          print "  Removing: %s" % f
+      print ''
   if no_duplicates:
     print "No duplicate files found in %r." % folder_list
   return 0
