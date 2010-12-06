@@ -20,15 +20,18 @@
 #
 ##############################################################################
 
-"""Usage : findDuplicates.py folder
+"""Usage : findDuplicates.py folder1 folder2 ...
 
-** [folder]
-      Folder that contain files to check.
+** [folder1 folder2 ...]
+      List of folders to check for duplicate files.
       Default: current folder.
 """
 
 
-import sys, os, hashlib
+import os
+import sys
+import getopt
+import hashlib
 from commands import getstatusoutput
 
 
@@ -64,30 +67,43 @@ def getMD5(file_path):
 
 
 if __name__ == "__main__":
-  # Get the folder where files to compare are located
-  param_list = sys.argv[1:]
-  folder_path = None
-  if len(param_list) != 1:
-    # No folder defined, use current folder
-    folder_path = os.path.abspath(os.getcwd())
-  else:
-    folder_path = os.path.abspath(param_list[0])
-  if not os.path.isdir(folder_path):
-    print "%s doesn't exist or is not a directory." % folder_path
-    sys.exit()
+  # Parse command line options
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+  except getopt.error, msg:
+    print msg
+    print "For help use --help"
+    sys.exit(2)
+  # Process options
+  for o, a in opts:
+    if o in ("-h", "--help"):
+      print __doc__
+      sys.exit(0)
+  # Process arguments
+  folder_list = []
+  for folder in args:
+    folder_path = os.path.abspath(folder)
+    if not os.path.isdir(folder_path):
+      print "%s doesn't exist or is not a directory." % folder_path
+      sys.exit()
+    folder_list.append(folder_path)
+  # No folder defined, use current folder
+  if not folder_list:
+    folder_list.append(os.path.abspath(os.getcwd()))
 
   # Browse folder sub-structure and compute checksums of all files
   checksum_dict = {}
-  for parent, dirs, files in os.walk(folder_path):
-    for filename in files:
-      filepath = os.path.join(parent, filename)
-      checksum = getMD5(filepath)
-      if not checksum:
-        print "Can't compute checksum of %s" % filepath
-        continue
-      if checksum not in checksum_dict:
-        checksum_dict[checksum] = []
-      checksum_dict[checksum] = checksum_dict[checksum] + [filepath]
+  for folder_path in folder_list:
+    for parent, dirs, files in os.walk(folder_path):
+      for filename in files:
+        filepath = os.path.join(parent, filename)
+        checksum = getMD5(filepath)
+        if not checksum:
+          print "Can't compute checksum of %s" % filepath
+          continue
+        if checksum not in checksum_dict:
+          checksum_dict[checksum] = []
+        checksum_dict[checksum] = checksum_dict[checksum] + [filepath]
 
   # Show results
   no_duplicates = True
@@ -97,6 +113,6 @@ if __name__ == "__main__":
       files.sort()
       print "Duplicate files:%s\n" % '\n  * '.join([''] + files)
   if no_duplicates:
-    print "No duplicate files found in %r." % folder_path
+    print "No duplicate files found in %r." % folder_list
   sys.exit(0)
 
