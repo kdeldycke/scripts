@@ -42,12 +42,6 @@ crop-tiff-images
   This script crop big tiff files in the folder one by one. I wrote this script as a stupid but working workaround because ImageMagick can’t handle too many files at once (at least on my Mandriva 2005, it always crash after several files processed).
 
 
-drupify-fork
-------------
-
-  This is a fork of the Drupify theme for Drupal 6.x. It holds all the modifications and hacks I added for Cool Cavemen's online shop (http://shop.coolcavemen.com).
-
-
 findDuplicates
 --------------
 
