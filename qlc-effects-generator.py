@@ -23,18 +23,34 @@
 """Hard-coded mapping of predefined colors.
 In The future, use a big table based on Rosco and Lee filters.
 """
-COLORS = { 'Black' : (  0,   0,   0)
-         , 'White' : (255, 255, 255)
-         , 'Red'   : (255,   0,   0)
-         , 'Green' : (  0, 255,   0)
-         , 'Blue'  : (  0,   0, 255)
-         , 'Fushia': (255,   0, 255)
-         , 'Rose'  : (255,   0, 127)
-         , 'Yellow': (255, 255,   0)
-         , 'Orange': (255, 127,   0)
-         , 'Violet': (127,   0, 255)
-         , 'Cyan'  : (  0, 255, 255)
-         }
+COLORS = {
+  # Extremes
+  'Black': (  0,   0,   0),
+  'White': (255, 255, 255),
+  # RGB
+  'Red'  : (255,   0,   0),
+  'Green': (  0, 255,   0),
+  'Blue' : (  0,   0, 255),
+  # CMY
+  'Cyan'   : (  0, 255, 255),
+  'Magenta': (255,   0, 255),
+  'Yellow' : (255, 255,   0),
+  # Bright CMY
+  'Bright Cyan'   : (127, 255, 255),
+  'Bright Magenta': (255, 127, 255),
+  'Bright Yellow' : (255, 255, 127),
+  # Pale colors
+  'Salmon'  : (255, 127, 127),
+  'Lemon'   : (127, 255, 127),
+  'Lavender': (127, 127, 255),
+  # Rich colors
+  'Azure'     : (  0, 127, 255),
+  'Rose'      : (255,   0, 127),
+  'Chartreuse': (127, 255    0),
+  'Green Blue': (  0, 255, 127),
+  'Purple'    : (127,   0, 255),
+  'Orange'    : (255, 127,   0),
+  }
 
 def getColorFromID(color_id):
   DEFAULT_COLOR = 'Red'
