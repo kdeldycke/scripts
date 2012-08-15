@@ -39,7 +39,7 @@ MBOX_FILE = './export.mbox'
 
 FORCED_ATTACHMENT = [
     './Mail/friend1/in/content.fla',
-    './Mail/friend2/in/sources/Makefile',
+    './Mail/friend2/in/Makefile',
     ]
 
 ## End of configuration
