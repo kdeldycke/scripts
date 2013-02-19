@@ -1,10 +1,13 @@
 Description
 ===========
 
-You'll find here all the open-source code I produce. This is just a collection of tiny utility scripts, patches, hacks and forks I want to or have to redistribute with the open source community at large.
+This repository is a collection of tiny utility scripts, patches and hacks.
 
-If for any reason one of these hacks get momentum, I'll move them to a stand-alone and dedicated project.
+These are mostly one-time scripts, very old and very specific. I doubt you'll be able to use them as-is. Until you update and tweak them to fit your needs. In this case, don't hesitate to send me code and patches.
 
+The code here is generally poorly written. Either because my coding style has improved since I wrote them, or because I didn't bother to make the code elegant after I finished my first working iteration.
+
+If for any reason one of these script get momentum, I'll consider moving it to a stand-alone and dedicated project.
 
 
 Script list
