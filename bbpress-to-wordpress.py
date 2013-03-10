@@ -110,7 +110,7 @@ users = dict([(u['ID'], u) for u in query('users', ['ID', 'user_login', 'display
 # Add an anonymous user
 users.update({0: {'ID': 0, 'display_name': "Anonymous", 'user_email': "", 'user_url': ""}})
 
-# Utility to get a new ID wil avoiding collisions
+# Utility to get a new ID while avoiding collisions
 reserved_ids = [t['ID'] for t in topics]
 reserved_ids.extend([r['ID'] for r in replies])
 reserved_ids.extend(users.keys())
