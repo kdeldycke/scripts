@@ -74,16 +74,6 @@ maildir++2kmail
 This script import a [Maildir++](http://en.wikipedia.org/wiki/Maildir#Maildir.2B.2B) directory and its subfolders to [Kmail](http://kontact.kde.org/kmail).
 
 
-maildir-deduplicate
--------------------
-
-This script compare all mails in a maildir folder and subfolders, then delete duplicate mails.
-
-You can give a list of mail headers to ignore when comparing mails between each others.
-
-I used this script to clean up a messed maildir folder after I move several mails from a Lotus Notes database.
-
-
 mldonkey-auto-download
 ----------------------
 
