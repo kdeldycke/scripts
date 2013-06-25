@@ -3,7 +3,9 @@ Description
 
 This repository is a collection of tiny utility scripts, patches and hacks.
 
-These are mostly one-time scripts, very old and very specific. I doubt you'll be able to use them as-is. Until you update and tweak them to fit your needs. In this case, don't hesitate to send me code and patches.
+These are mostly one-time scripts, very old and very specific. I doubt you'll be able to use them as-is. Until you update and tweak them to fit your needs.
+
+And if by chance you fix some bugs or add new features, feel free to submit a pull request. I'll be happy to merge it.
 
 The code here is generally poorly written. Either because my coding style has improved since I wrote them, or because I didn't bother to make the code elegant after I finished my first working iteration.
 
