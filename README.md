@@ -15,75 +15,77 @@ Current content
 
 *   **adsl-monitoring.py**
 
-    Used with `cron`, this script help me to keep my unreliable broadband access alive.
+    Used with `cron`, it helps me to keep my unreliable broadband access alive.
+    
+    Context: http://kevin.deldycke.com/2004/06/mise-en-place-paserelle-adsl-mandrake-10/
 
 *   **audio-file-normalizer.py**
 
-    This script parse a `.m3u` playlist file and convert Ogg/Vorbis and Flac files to AAC.
+    Parse a `.m3u` playlist file and convert Ogg/Vorbis and Flac files to AAC.
 
 *   **avi2mp4.py**
 
-    This script convert Avi files within the folder to compressed MP4/MP3 movies. Codecs parameters are adapted for tiny films taken with my cheap camera. This is VLC-based but older version were based on mplayer/mencoder.
+    Converts Avi files within the folder to compressed MP4/MP3 movies. Codecs parameters are adapted for tiny films taken with my cheap camera. This is VLC-based but older version were based on mplayer/mencoder.
+    
+    Based on: http://kevin.deldycke.com/2006/11/video-commands/
 
 *   **bbpress-to-mailbox.py**
 
-
+    More details at: http://kevin.deldycke.com/2012/10/converting-bbpress-forum-mailbox-archive/
 
 *   **bbpress-to-wordpress.py**
 
-
+    More details at: http://kevin.deldycke.com/2012/10/transfer-bbpress-to-plain-wordpress/
 
 *   **confsaver.py**
 
-    A little python script to save a collection of files and directories into a Bzip2 compressed archive.
+    Save a collection of files and directories into a Bzip2 compressed archive.
 
 *   **cron-monitor-network.py**
 
-
-
 *   **crop-tiff-images.py**
 
-    This script crop big tiff files in the folder one by one. I wrote this script as a stupid but working workaround to ImageMagick which wasn't able to handle too many files at once (at least on my Mandriva 2005, it always crash after several files processed).
+    Crops big tiff files in the folder one by one. I wrote this script as a stupid but working workaround to ImageMagick which wasn't able to handle too many files at once (at least on my Mandriva 2005, it always crash after several files processed).
 
 *   **findDuplicates.py**
 
     This script search and display all duplicate files within a folder structure.
+    
+    Also see: http://kevin.deldycke.com/2006/10/find-duplicate-files-in-a-folder/
 
 *   **getAgentList.py**
 
-
-
 *   **KnewstickerToAkregator.py**
 
-    This script parse the KNewsTicker configuration file of the current logged user to extract feeds references. Then the script generate a OPML/XML file that can be imported to [Akregator](http://akregator.kde.org/). Prerequisite: KNewsTicker and pyxml.
+    Parse the KNewsTicker configuration file of the current logged user to extract feeds references. Then the script generate a OPML/XML file that can be imported to [Akregator](http://akregator.kde.org/). Prerequisite: KNewsTicker and pyxml.
+    
+    Also see: https://bugs.kde.org/show_bug.cgi?id=85477
 
 *   **KopeteChatRenderer.py**
 
-    This little script transform a Kopete history XML file to an ASCII file. I’ve written this script to be able to copy and paste my chat with pals in e-mails.
+    Transform a Kopete history XML file to an ASCII file. I’ve written this script to be able to copy and paste my chat with pals in e-mails.
 
 *   **la-bas.org-archive-download.py**
 
-    Similar script to `osdir-slideshow` but designed to download Ogg archives of a french radio show thanks to wget.
+    Similar to `osdir-slideshow.py` but designed to download Ogg archives of a french radio show thanks to wget.
 
 *   **maildir2ical.py**
 
-
+    More details at: http://kevin.deldycke.com/2010/06/subversion-commits-mail-activity-stream-icalendar/
 
 *   **maildir++2kmail.py**
 
-    This script import a [Maildir++](http://en.wikipedia.org/wiki/Maildir#Maildir.2B.2B) directory and its subfolders to [Kmail](http://kontact.kde.org/kmail).
+    Import a [Maildir++](http://en.wikipedia.org/wiki/Maildir#Maildir.2B.2B) directory and its subfolders to [Kmail](http://kontact.kde.org/kmail).
+    
+    More details at: http://kevin.deldycke.com/2007/11/how-to-import-a-maildir-folder-to-kmail/
 
 *   **mail_ingestor.py**
 
-
+    More details at: http://kevin.deldycke.com/2012/09/mail-ingestor-py-ingest-raw-text-files-produce-mailbox/
 
 *   **mass-replace.py**
 
-
-
 *   **mechanize-playground.py**
-
-
 
 *   **mldonkey-auto-download.sh**
 
@@ -91,53 +93,53 @@ Current content
 
 *   **monthly-internet-uptime.py**
 
-    This script help me to monitor how long my backup Dial-up modem is up per month.
+    Monitor how long my backup Dial-up modem is up per month.
 
 *   **osdir-slideshow.py**
 
-    I wrote this script to get a series of screenshots from well-known OSdir slideshows.
+    Get a series of screenshots from well-known OSdir slideshows.
 
 *   **phorum_anon2user.php**
 
-    This is a little script I wrote for Phorum, to give a owner to anonymous post.
+    Let you assign an owner to an anonymous post in Phorum.
 
 *   **phorum_bodies_update.php**
 
-    Script to convert old message format to new format (with the conversion of HTML tags to Phorum specific tags).
+    Convert old message format to new format (with the conversion of HTML tags to Phorum specific tags).
 
 *   **phorum_to_e107.php**
 
-    This script is designed to migrate [Phorum 3.x](http://www.phorum.org) datas to a new empty e107 website. The destination e107 platform must be empty because this script copy Phorum id and don’t re-index database records.
+    Migrate [Phorum 3.x](http://www.phorum.org) datas to a new empty e107 website. The destination e107 platform must be empty because this script copy Phorum id and don’t re-index database records.
 
 *   **phorum-to-wordpress.py**
 
-
-
 *   **process-monitoring.py**
 
-    This script, combined with cron, help me to keep an eye on a running process.
+    Combined with cron, helps keep an eye on a running process.
 
 *   **qlc-effects-generator.py**
 
-
+    More details at: http://kevin.deldycke.com/2010/08/qlc-effects-generator-led-panels/
 
 *   **svn2ical.py**
 
-
+    More details at: http://kevin.deldycke.com/2010/06/subversion-commits-mail-activity-stream-icalendar/
 
 *   **system-backup.py**
 
-    This script automate system backups thanks to rdiff-backup and rsync. It is based on an idea from the "[Backup up on unreliable link](http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink)" article from the [official rdiff-backup wiki](http://wiki.rdiff-backup.org).
+    Automate system backups thanks to rdiff-backup and rsync. It is based on an idea from the "[Backup up on unreliable link](http://wiki.rdiff-backup.org/wiki/index.php/BackupUpOnUnreliableLink)" article from the [official rdiff-backup wiki](http://wiki.rdiff-backup.org).
 
 *   **website-backup.py**
 
-    This script automate the mirroring of several external websites (both files and MySQL databases) thanks to `lftp`, `mysqldump`, `ssh` and `rsync`. Then it make an incremental backup each day thanks to rdiff-backup and finally a snapshot each month. Here is the list of [latest changes and detailed features](http://kevin.deldycke.com/2007/03/website-backup-script-mysql-dumps-and-ssh-supported/).
+    Automate the mirroring of several external websites (both files and MySQL databases) thanks to `lftp`, `mysqldump`, `ssh` and `rsync`. Then it make an incremental backup each day thanks to rdiff-backup and finally a snapshot each month. Here is the list of [latest changes and detailed features](http://kevin.deldycke.com/2007/03/website-backup-script-mysql-dumps-and-ssh-supported/).
 
 *   **xwd2png.py**
 
-    This script convert .xwd images taken with xvidcap to a series of .png images. I wrote this because mencoder can’t read xwd files.
+    Convert .xwd images taken with xvidcap to a series of .png images. I wrote this because mencoder can’t read xwd files.
 
 *   **zenphoto-to-wordpress.py**
+
+    More details at: http://kevin.deldycke.com/2012/09/zenphoto-wordpress-migration/
 
 
 Past content
