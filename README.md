@@ -151,6 +151,10 @@ Past content
 
     Moved to [its own repository](https://github.com/kdeldycke/maildir-deduplicate).
 
+*   **ubuntu-install.sh** & **osx-install.sh**
+
+    Moved to a [dedicated repository](https://github.com/kdeldycke/dotfiles).
+
 
 Licence
 -------
