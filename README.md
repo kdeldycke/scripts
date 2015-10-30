@@ -71,6 +71,10 @@ Current content
 
     Similar to `osdir-slideshow.py` but designed to download Ogg archives of a french radio show thanks to wget.
 
+*   **linked_list.py**
+
+    Implement a linked list class and its utility methods.
+
 *   **maildir2ical.py**
 
     More details at: http://kevin.deldycke.com/2010/06/subversion-commits-mail-activity-stream-icalendar/
