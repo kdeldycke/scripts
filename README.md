@@ -18,7 +18,7 @@ Current content
 *   **adsl-monitoring.py**
 
     Used with `cron`, it helps me to keep my unreliable broadband access alive.
-    
+
     Context: http://kevin.deldycke.com/2004/06/mise-en-place-paserelle-adsl-mandrake-10/
 
 *   **audio-file-normalizer.py**
@@ -28,7 +28,7 @@ Current content
 *   **avi2mp4.py**
 
     Converts Avi files within the folder to compressed MP4/MP3 movies. Codecs parameters are adapted for tiny films taken with my cheap camera. This is VLC-based but older version were based on mplayer/mencoder.
-    
+
     Based on: http://kevin.deldycke.com/2006/11/video-commands/
 
 *   **bbpress-to-mailbox.py**
@@ -52,7 +52,7 @@ Current content
 *   **findDuplicates.py**
 
     This script search and display all duplicate files within a folder structure.
-    
+
     Also see: http://kevin.deldycke.com/2006/10/find-duplicate-files-in-a-folder/
 
 *   **getAgentList.py**
@@ -60,7 +60,7 @@ Current content
 *   **KnewstickerToAkregator.py**
 
     Parse the KNewsTicker configuration file of the current logged user to extract feeds references. Then the script generate a OPML/XML file that can be imported to [Akregator](http://akregator.kde.org/). Prerequisite: KNewsTicker and pyxml.
-    
+
     Also see: https://bugs.kde.org/show_bug.cgi?id=85477
 
 *   **KopeteChatRenderer.py**
@@ -82,7 +82,7 @@ Current content
 *   **maildir++2kmail.py**
 
     Import a [Maildir++](http://en.wikipedia.org/wiki/Maildir#Maildir.2B.2B) directory and its subfolders to [Kmail](http://kontact.kde.org/kmail).
-    
+
     More details at: http://kevin.deldycke.com/2007/11/how-to-import-a-maildir-folder-to-kmail/
 
 *   **mail_ingestor.py**
