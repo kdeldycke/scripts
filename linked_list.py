@@ -53,6 +53,11 @@ class LinkedList(object):
     Future enhancements: override standard operator via __magic__ methods.
     """
 
+    # Stupid constant for recursive reverse initialization, cause it's late
+    # and I feel lazy re-factoring a working recursive reverse, only to support
+    # cleaner initial conditions.
+    INIT = 'init'
+
     def __init__(self, sequence=None):
         """ Initial empty linked-list has no root node. """
         self.root_node = None
@@ -96,6 +101,30 @@ class LinkedList(object):
             if item == value:
                 return True
         return False
+
+    def iterative_reverse(self):
+        """ Reverse the whole chain of nodes iteratively. """
+        previous_node = None
+        node = self.root_node
+        while node:
+            next_node = node.next_node
+            node.next_node = previous_node
+            previous_node = node
+            node = next_node
+        self.root_node = previous_node
+
+    def recursive_reverse(self, node=INIT):
+        """ Reverse the whole chain of nodes recursively. """
+        if node == self.INIT:
+            node = self.root_node
+        if not node:
+            return
+        if not node.next_node:
+            self.root_node = node
+            return
+        self.recursive_reverse(node.next_node)
+        node.next_node.next_node = node
+        node.next_node = None
 
 
 class LinkedSet(LinkedList):
@@ -172,6 +201,40 @@ def main():
     ls5 = LinkedSet('super')
     assert ls5.contains('p')
     assert not ls5.contains('z')
+
+    print("Testing reversing nodes.")
+
+    # Test iterative reverse.
+    lr1 = LinkedList()
+    lr1.insert(1)
+    lr1.insert(2)
+    lr1.insert(3)
+    lr1.insert(4)
+    assert list(lr1.values) == [1, 2, 3, 4]
+    lr1.iterative_reverse()
+    assert list(lr1.values) == [4, 3, 2, 1]
+
+    # Test empty list iterative reversal.
+    lr2 = LinkedList()
+    assert list(lr2.values) == []
+    lr2.iterative_reverse()
+    assert list(lr2.values) == []
+
+    # Test recursive reverse.
+    lr3 = LinkedList()
+    lr3.insert(1)
+    lr3.insert(2)
+    lr3.insert(3)
+    lr3.insert(4)
+    assert list(lr3.values) == [1, 2, 3, 4]
+    lr3.recursive_reverse()
+    assert list(lr3.values) == [4, 3, 2, 1]
+
+    # Test empty list recursive reversal.
+    lr4 = LinkedList()
+    assert list(lr4.values) == []
+    lr4.recursive_reverse()
+    assert list(lr4.values) == []
 
     print("Everything's working ! :)")
 
