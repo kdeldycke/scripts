@@ -160,10 +160,11 @@ Past content
     Moved to a [dedicated repository](https://github.com/kdeldycke/dotfiles).
 
 
-Licence
+License
 -------
 
-Unless otherwise noted, code in this repository is distributed under a GNU GPL2+ licence.
+This software is licensed under the [GNU General Public License v2 or later
+(GPLv2+)](LICENSE).
 
 
 Disclaimer
