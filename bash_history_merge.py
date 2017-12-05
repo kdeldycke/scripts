@@ -33,7 +33,7 @@ Requires the `boltons` python module, installable via `pip`:
 
 Usage example:
 
-  $ python bash-history-merge.py "~/.bash_history" ".histcopy" > .merged_hist
+  $ python bash_history_merge.py "~/.bash_history" ".histcopy" > .merged_hist
 
 """
 
