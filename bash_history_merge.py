@@ -22,7 +22,7 @@
 Produces a consolidated output on STDOUT with all entries sorted by timestamps.
 
 During the deduplication process, historized command lines are normalized by
-stripping their leading and trailing blank charaters.
+stripping their leading and trailing blank characters.
 
 Are considered duplicate entries those sharing the exact same timestamp and
 normalized command line.
