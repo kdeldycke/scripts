@@ -55,12 +55,32 @@ from textwrap import dedent
 
 from boltons.setutils import IndexedSet
 
+# The minimal timestamp value supported by Bash's history is (epoch + 1):
+#
+#    $ head ~/.bash_history
+#    #0
+#    ls
+#    #1
+#    ls
+#    #2
+#    ls
+#
+#    $ history | head
+#        1  ??ls
+#        2  [1970-01-01 01:00:01] ls
+#        3  [1970-01-01 01:00:02] ls
+#
+# See bash source code at:
+# https://git.savannah.gnu.org/cgit/bash.git/tree/builtins/history.def#n267
+MIN_TIMESTAMP = 1
+
 
 def parse_history(fd):
     """ Parse an history file, normalize its timestamp and command lines. """
 
-    # Timestamp value of the line immediately above. Default to epoch.
-    timestamp_line_above = 0
+    # Timestamp value of the line immediately above. Default to minimal
+    # timestamp value.
+    timestamp_line_above = MIN_TIMESTAMP
 
     for line in fd:
 
@@ -80,7 +100,7 @@ def parse_history(fd):
             except ValueError:
                 # This line is not an integer timestamps. Ignore it.
                 continue
-            timestamp_line_above = int(timestamp)
+            timestamp_line_above = max(int(timestamp), MIN_TIMESTAMP)
             continue
 
         # The line here is not empty nor a timestamp. It is a valid entry.
@@ -133,17 +153,17 @@ def test_timestampless_merging():
     output = dedupe(history_1, history_2)
 
     assert output == dedent("""\
-        #0
+        #1
         tail -Fn 1000 /var/log/syslog | grep "foo"
-        #0
+        #1
         cat /etc/foo.yaml
-        #0
+        #1
         tail -Fn 10000 /var/log/syslog | grep "foo"
-        #0
+        #1
         history | grep foo
-        #0
+        #1
         history | grep bar
-        #0
+        #1
         ll""")
 
 
