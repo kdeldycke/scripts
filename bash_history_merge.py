@@ -46,10 +46,10 @@ keeping the lastest occurence.
 
 from __future__ import print_function
 
-from itertools import chain, imap
+from itertools import chain
 from operator import itemgetter
 from os import path
-from StringIO import StringIO
+from io import StringIO
 import sys
 from textwrap import dedent
 
@@ -111,7 +111,7 @@ def dedupe(*input_files):
     """ Takes file descriptors and return deduplicated content. """
 
     # Parse and merge all files entries.
-    results = chain.from_iterable(imap(parse_history, input_files))
+    results = chain.from_iterable(map(parse_history, input_files))
 
     # Deduplicate entries sharing the same timestamp by removing all previous
     # occurences, only keeping the last one. A reverse IndexedSet let us keep
