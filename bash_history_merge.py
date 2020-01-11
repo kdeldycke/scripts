@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2017 Kevin Deldycke <kevin@deldycke.com>
+# Copyright (c) 2016-2020 Kevin Deldycke <kevin@deldycke.com>
 # All Rights Reserved.
 #
 # This program is Free Software; you can redistribute it and/or
